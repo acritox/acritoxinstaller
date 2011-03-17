@@ -17,6 +17,8 @@
 
 MainWizard::MainWizard()
 {
+  setMinimumSize(QSize(640,480));
+  
   backend = Backend::instance();
   backend->runBackend();
     

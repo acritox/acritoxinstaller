@@ -36,28 +36,36 @@ function set_debug()
     esac
 }
 
-if ((UID)); then
-	p="$PWD/$(basename "$0")"
-	if [ -x /usr/bin/sudo ]; then
-		if /usr/bin/sudo -n -l "$p" &>/dev/null; then
-			/usr/bin/sudo "$p" "$@"
+# Synopsis: get_root ["X"]
+#
+# This function makes sure the user has root-privileges.
+# Argument X means it won't use "sudo" to gain root-privileges, because sudo doesn't support X-applications
+function get_root()
+{
+	if ((UID)); then
+		p="$PWD/$(basename "$0")"
+		if [ -x /usr/bin/sudo -a "$1" != "X" ]; then
+			if /usr/bin/sudo -n -l "$p" &>/dev/null; then
+				/usr/bin/sudo "$p" "${O_ARGS[@]}"
+				exit $?
+			fi
+		fi
+		if [ -x /usr/lib/kde4/libexec/kdesu ]; then
+			/usr/lib/kde4/libexec/kdesu --noignorebutton -d -- "$p" --pid $$ "${O_ARGS[@]}" &>/dev/null
 			exit $?
 		fi
-	fi
-	if [ -x /usr/lib/kde4/libexec/kdesu ]; then
-		/usr/lib/kde4/libexec/kdesu --noignorebutton -d -- "$p" --pid $$ "$@" &>/dev/null
+		if [ -z "$as_root" ]; then
+			for as_root in /usr/bin/kdesu /usr/bin/gksu exec
+			do
+				[ -x $as_root ] && break
+			done
+		fi
+		$as_root "$p" --pid $$ "${O_ARGS[@]}" &>/dev/null
 		exit $?
 	fi
-	if [ -z "$as_root" ]; then
-		for as_root in /usr/bin/kdesu /usr/bin/gksu exec
-		do
-			[ -x $as_root ] && break
-		done
-	fi
-	$as_root "$p" --pid $$ "$@" &>/dev/null
-	exit $?
-fi
+}
 
+O_ARGS=( "${@}" )
 while [ "$1" ]
 do
 	case $1 in
@@ -79,6 +87,8 @@ do
 	esac
 	shift
 done
+
+get_root
 
 EOT="$(echo -e '\004')"
 while true

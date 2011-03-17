@@ -4,9 +4,11 @@ function run_partmgr()
 {
 	case "$1" in
 	cfdisk|fdisk)
+		get_root
 		TERM=xterm /sbin/"$1" "$2"
 		;;
 	gparted|qtparted)
+		get_root X
 		"$1" "$2"
 		;;
 	esac

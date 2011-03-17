@@ -1,0 +1,68 @@
+#!/bin/bash
+
+declare -A cfg flags
+
+function cfg_get()
+{
+	while [ "$1" ];
+	do
+		send data value
+		echo "${cfg["$1"]}"
+		send cfg "$1"
+		shift
+	done
+}
+
+function cfg_set()
+{
+	var="$1"
+	shift
+	cfg["$var"]="$@"
+	cfg_get "$var" # inform the frontend about the change
+	var="$(tr '[:upper:]' '[:lower:]' <<<"$var" | tr -d '\n' | tr -c '[:alnum:]' _)"
+	export cfg_${var}="$@"
+}
+
+function flag()
+{
+	[ "${flags["$1"]}" ] && return 0 || return 1
+}
+
+function flag_set()
+{
+	send flag set "$1" # inform the frontend about the change
+	flags["$1"]=1
+}
+
+function flag_unset()
+{
+	send flag unset "$1" # inform the frontend about the change
+	unset flags["$1"]
+}
+
+function hdmap_set()
+{
+	cfg_set hdmap "$( ( echo "$@"; ( echo "$@"; echo "$cfg_hdmap" ) | sort -u -t: -k1,1 ) | sort -u -t: -k2,2 | grep .)"
+}
+
+# Synopsis: hdmap_get <"device"|"mountpoint"|"filesystem"|"automount"> of <"device"|"mountpoint"> <device|mountpoint>
+#
+# This function returns the given value from the hdmap table
+function hdmap_get()
+{
+	[ "$2" == "of" ] || return 1
+	case "$1" in
+	device) col=1;;
+	mountpoint) col=2;;
+	filesystem) col=3;;
+	automount) col=4;;
+	*) return 1;;
+	esac
+	case "$3" in
+	device) of_col=1;;
+	mountpoint) of_col=2;;
+	*) return 1;;
+	esac
+	gawk "BEGIN{FS=\":\"}{if(\$$of_col==\"$4\"){print \$$col}}" <<<"$cfg_hdmap"
+}
+

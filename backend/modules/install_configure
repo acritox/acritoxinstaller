@@ -1,0 +1,152 @@
+#!/bin/bash
+
+# Synopsis: configure_target_update_files
+#
+# This function is adapted from the Knoppix-Installer
+function configure_target_update_files()
+{
+	send install_step configure_target_update_files
+	# set up hostname
+	cat <<EOF >$TARGET/etc/hosts
+127.0.0.1	localhost
+127.0.1.1	$cfg_hostname
+
+# The following lines are desirable for IPv6 capable hosts
+# (added automatically by netbase upgrade)
+
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+EOF
+	echo "$cfg_hostname" > $TARGET/etc/hostname
+	echo "$cfg_hostname" > $TARGET/etc/mailname
+	
+	# remove LiveCD-user from /etc/sudoers
+	cat > "$TARGET/etc/sudoers" <<EOF
+# /etc/sudoers
+#
+# This file MUST be edited with the 'visudo' command as root.
+#
+# See the man page for details on how to write a sudoers file.
+#
+
+Defaults	env_reset
+
+# Host alias specification
+
+# User alias specification
+
+# Cmnd alias specification
+
+# User privilege specification
+root	ALL=(ALL) ALL
+EOF
+	chown root:root "$TARGET/etc/sudoers"
+	chmod 0440 "$TARGET/etc/sudoers"
+	
+	# "normalize" /etc/inittab
+	rm -f "$TARGET/etc/inittab"
+	sed 's/id\:[0-6]\:initdefault\:/id\:5\:initdefault\:/;s/\([1-6]:23\):/\145:/' "$TARGET/usr/share/sysvinit/inittab" > "$TARGET/etc/inittab"
+	
+	# create "real" /tmp with mode 1777
+	rm -f $TARGET/tmp 2>/dev/null
+	mkdir -p $TARGET/tmp
+	chmod 1777 $TARGET/tmp
+
+	# create /etc/mtab as a regular file
+	rm -f $TARGET/etc/mtab
+	touch $TARGET/etc/mtab
+
+	# configure /etc/kernel-pkg.conf
+	if [ -f "$TARGET/etc/kernel-pkg.conf" ]; then
+		perl -pi -e "s/^maintainer.*\=.*/maintainer \:\= $cfg_realname/;s/^email.*\=.*/email \:\= $cfg_username\@$cfg_hostname\.local/" "$TARGET/etc/kernel-pkg.conf"
+		NUMCPUS=$(grep -c "model name" /proc/cpuinfo)
+		[ $NUMCPUS -ge 2 ] && echo CONCURRENCY_LEVEL := $NUMCPUS >> $TARGET/etc/kernel-pkg.conf
+	fi
+	
+	# enable KDE sounds
+	rm -f "$TARGET/home/$cfg_username/.kde/share/config/knotifyrc"
+		
+	# profile
+	cat "$TARGET/usr/share/base-files/profile" > "$TARGET/etc/profile"
+	
+	# For us users use an us-mirror
+	case "$LANGUAGE" in
+		us*)
+			#perl -pi -e "s/ftp2.de.debian.org/ftp.uk.debian.org/" $TARGET/etc/apt/sources.list
+			:
+		;;
+	esac
+	
+	# install hooks
+	if [ "$(ls $TARGET/usr/share/acritoxinstaller/target-config)" ]; then
+		for hook in $TARGET/usr/share/acritoxinstaller/target-config/*
+		do
+			chroot_it "${hook#$TARGET}"
+		done
+	fi
+	
+	# install overlay
+	if [ "$(ls $TARGET/usr/share/acritoxinstaller/target-overlay)" ]; then
+		cp -a --target-directory=$TARGET $TARGET/usr/share/acritoxinstaller/target-overlay/*
+	fi
+
+	# add correct keymap
+	[ -f /etc/sysconfig/keyboard ] && . /etc/sysconfig/keyboard
+
+	[ -n "$KEYTABLE" ] && chroot_it install-keymap "$KEYTABLE" 2>/dev/null
+}
+
+# Synopsis: configure_target_purge_live_only_stuff
+#
+# This function removes everything that is only useful on live-systems
+function configure_target_purge_live_only_stuff()
+{
+	send install_step configure_target_purge_live_only_stuff
+	# remove live-only-packages
+	chroot_it dpkg --purge \
+			busybox \
+			acritoxinstaller \
+			acritoxinstaller-kanotix \
+			live-boot-initramfs-tools \
+			live-boot \
+			live-initramfs \
+			live-build-cgi \
+			live-build \
+			live-helper \
+			live-config-runit \
+			live-config-sysvinit \
+			live-config-upstart \
+			live-config \
+			live-magic \
+			live-manual-epub \
+			live-manual-html \
+			live-manual-odf \
+			live-manual-pdf \
+			live-manual-txt \
+			live-manual \
+			mknbi \
+			syslinux \
+			tftpd-hpa 	&> /dev/null
+	
+	#  disable live config
+	[ -f "$TARGET/etc/default/distro" ] && \
+		perl -pi -e "s/^FLL_DISTRO_MODE\=.*/FLL_DISTRO_MODE\=\"installed\"/" "$TARGET/etc/default/distro"
+	
+	# remove temporary kde- user files
+	rm -f "$TARGET/home/$cfg_username/.DCOPserver_*_*"
+	rm -f "$TARGET/home/$cfg_username/.kde/cache-*"
+	rm -f "$TARGET/home/$cfg_username/.kde/socket-*"
+	rm -f "$TARGET/home/$cfg_username/.kde/tmp-*"
+	rm -f "$TARGET/home/$cfg_username/.*uthority"
+	
+	rm -rf "$TARGET/etc/sysconfig"
+	rm -f "$TARGET/home/$cfg_username/Desktop/install-gui.desktop"
+
+	# remove kdm live shutdown hack
+	rm -f "$TARGET/home/$cfg_username/.kde/shutdown/kdm-force-shutdown-hack"
+}
+

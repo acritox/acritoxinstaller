@@ -1,0 +1,15 @@
+#!/bin/bash
+
+function cleanup()
+{
+	
+        cd /
+        umount "$TARGET/proc" &>/dev/null
+        umount "$TARGET/dev" &>/dev/null
+        umount "$TARGET/sys" &>/dev/null
+	umount_all_affected "$(hdmap_get device of mountpoint /)" &>/dev/null
+        umount "$TARGET" &>/dev/null
+        umount "/live/filesystem" &>/dev/null
+	rmdir "$TARGET" "/live/filesystem" &>/dev/null
+}
+

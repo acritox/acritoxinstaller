@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>wpPartitions</class>
+ <widget class="QWizardPage" name="wpPartitions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>515</width>
+    <height>389</height>
+   </rect>
+  </property>
+  <property name="title">
+   <string>Partitions</string>
+  </property>
+  <property name="subTitle">
+   <string>Mmmmmh! Partitions!</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QListWidget" name="listWidget"/>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

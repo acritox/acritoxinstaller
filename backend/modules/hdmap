@@ -1,0 +1,340 @@
+#!/bin/bash
+
+# Synopsis: mointpoint_demands
+#
+# This function dumps the demands of various mountpoints
+function mointpoint_demands()
+{
+cat <<"EOT"
+/: Type:Linux
+/boot: LVM:no Type:Linux
+/bin: Type:Linux
+/etc: Type:Linux
+/home: Type:Linux
+/lib: Type:Linux
+/opt: Type:Linux
+/root: Type:Linux
+/sbin: Type:Linux
+/tmp: Type:Linux
+/usr: Type:Linux
+/var: Type:Linux
+EOT
+}
+
+# FIXME TODO OLD OUTDATED 
+function emit_error()
+{
+send debug "$@"
+cat
+return 1
+}
+# FIXME TODO OLD OUTDATED 
+function emit_progress()
+{
+        percent=$1
+        [ "$percent" -gt 100 ] && percent=100
+        send progress "$percent"
+}
+
+
+# Synopsis: is_disk /dev/xyz
+#
+# This function returns 0 if the supplied argument is a disk.
+function is_disk()
+{
+    stat --format "%t %G" "$1" | grep -qe "^3 " -e " disk$" && return 0
+    return 1
+}
+
+# Synopsis: calculate_min_space
+#
+# This function estimates the minimum space needed for a hdinstall
+function calculate_min_space()
+{
+    ESTIMATED_ROOT_MIN=$(df -m "/live/filesystem" | tail -1 | gawk '{print $3}')
+    grep -q squashfs /proc/mounts && ESTIMATED_ROOT_MIN=$(($ESTIMATED_ROOT_MIN*270/100))
+    export ESTIMATED_ROOT_MIN
+}
+
+# Synopsis: handle_mountpoint_demands <device>
+#
+# This function handles the demands of the mountpoints (data from function mountpoint_demands)
+#   * check if filesystem matches (Filesystem:reiserfs / Filesystem:ext3 / see get_filesystem() )
+#   * check if filesystem-type matches (Type:Linux / Type:Windows / see get_filesystem_type() )
+#   * check if <device> is a LVM-device (LVM:yes / LVM:no)
+# TODO: from old installer, not adapted yet.
+function handle_mountpoint_demands()
+{
+	PART="$1";
+	FORMAT_FS="$2";
+	POINT=$(echo $3 | cut -d":" -f1); shift 3
+	while [ "$1" ];
+	do
+		VAR=$(echo $1 | cut -d":" -f1)
+		VAL=$(echo $1 | cut -d":" -f2)
+		case "$VAR" in
+		Filesystem)
+			if [ -n "$FORMAT_FS" -a "$FORMAT_FS" != "$VAL" ]; then
+				echo "ERROR: Filesystem on $PART ($POINT) has to be formatted with $VAL!" \
+				| emit_error 1
+				return 1
+			elif [ -z "$FORMAT_FS" -a "$(get_filesystem "$PART")" != "$VAL" ]; then
+				echo "ERROR: Filesystem on $PART ($POINT) is not $VAL!" \
+				| emit_error 1
+				return 1
+			fi
+			;;
+		Type)
+			if [ -n "$FORMAT_FS" -a "$(get_filesystem_type -fs "$FORMAT_FS")" != "$VAL" ]; then
+				echo "ERROR: Filesystem on $PART ($POINT) has to be formatted with a $VAL-Filesystem!" \
+				| emit_error 1
+				return 1
+			elif [ -z "$FORMAT_FS" -a "$(get_filesystem_type "$PART")" != "$VAL" ]; then
+				echo "ERROR: Filesystem on $PART ($POINT) is not a $VAL-Filesystem!" \
+				| emit_error 1
+				return 1
+			fi
+			;;
+		LVM)
+			not=not
+			lvdisplay $PART &>/dev/null; A=$?
+			[ "$VAL" = "yes" ] && unset not; B=$?
+			((A*B)) || ! ((A-B)) || ( echo ERROR: $PART "($POINT)" must $not be on a LVM-device! | emit_error 1; return 1 ) || return 1
+			;;
+		esac
+		shift
+	done
+}
+
+# Synopsis: check_partitions_for_install
+#
+# This function processes the hd_map-config:
+#   * make sure that the device exists
+#   * take care of the mountpoint demands
+#   * check if partition has the "automount"-flag
+#   * check if all partitions are big enough to install the system on it
+# TODO: from old installer, not adapted yet.
+function check_partitions_for_install()
+{
+	unset found_root
+	local progress_steps=$(( $(wc -l <<<"$cfg_hdmap") * 2 + 1))
+	local progress=0
+        progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
+        # compute partition_min_table
+        local partition_min_table_=$ESTIMATED_ROOT_MIN
+        while IFS=: read device mountpoint filesystem automount
+        do
+            case "$mountpoint" in
+            "") continue;;
+            /) continue;;
+            /usr) MP_MIN=$(( $ESTIMATED_ROOT_MIN - $(du -sm --exclude /live/filesystem/usr /live/filesystem | cut -f1) ));;
+            *) MP_MIN=$(du -sm "/live/filesystem$mountpoint" 2>/dev/null | cut -f1);;
+            esac
+            [ -z "$MP_MIN" ] && MP_MIN=0
+            mp="$mountpoint"
+            while mp="$(dirname "$mp")"
+            do
+                var_mp="$(echo "$mp" | sed 's/[^a-zA-Z0-9]/_/g')"
+                parent_min="$(eval echo \$partition_min_table$var_mp)"
+                if [ -n "$parent_min" ]; then
+                    eval local partition_min_table$var_mp=$(( $parent_min-$MP_MIN ))
+                    break
+                fi
+                [ "${#mp}" -gt 1 ] || break;
+            done
+            var_mp="$(echo "$mountpoint" | sed 's/[^a-zA-Z0-9]/_/g')"
+            eval local partition_min_table$var_mp=$MP_MIN
+            progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
+        done <<<"$cfg_hdmap"
+
+        isosrc_dev="$(awk '{if($2 == "/isosrc"){print $1}}' /proc/mounts)"
+	while IFS=: read device mountpoint filesystem automount
+	do
+		[ -z "$mountpoint" ] && continue;
+		
+		# set flag if there is a root-partition in the hd_map
+		[ "$mountpoint" = / ] && found_root=1
+		
+                if [ "$device" = "$isosrc_dev" ]; then
+                    if [ "$filesystem" ]; then
+                        emit_error 1 "Partition $device ($mountpoint) is mounted to /isosrc... This partition cannot be formatted!"
+                        return 1
+                    fi
+                fi
+		
+		# take care of the mountpoint demands
+		if part_demands="$(mointpoint_demands | egrep "^$mountpoint:" 2>/dev/null)"; then
+			[ "$automount" = "auto" ] || emit_error 1 "Partition $device ($mountpoint) doesn't have the automount-flag set!" || return 1
+			eval handle_mountpoint_demands \"$device\" \"$filesystem\" $part_demands
+		fi
+		
+		# Check if the partition is big enough to contain the installation
+		var_mp="$(echo "$mountpoint" | sed 's/[^a-zA-Z0-9]/_/g')"
+		mp_min="$(eval echo \$partition_min_table$var_mp)"
+		partition_size_min=$[mp_min*1024*1024*115/100] # + 15% Filesystem overhead
+		partition_size="$(blockdev --getsize64 $device)" # actual size of device (in bytes)
+		if [ "$partition_size" -lt "$partition_size_min" ]; then
+			emit_error 1 "Partition $device ($mountpoint) is too small! it is $[partition_size/1024/1024] MB big, but it should be at least $[partition_size_min/1024/1024+10] MB big"
+			return 1
+		fi
+		progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
+	done <<<"$cfg_hdmap"
+	
+	if [ -z "$found_root" ]; then
+		echo "No root-partition selected!" | emit_error 1
+	fi
+}
+
+# Synopsis: umount_all_affected [-fdisk] <device>
+#
+# This function unlocks a device and all affected devices:
+#   * it umounts mounted partitions with "umount" and disables swap-partitions with "swapoff"
+#   * if "-fdisk" is set:
+#     - it unlocks all partitions that are on the same device as the one given
+#       (e.g. "umount_all_affected -fdisk /dev/hda3" is called, so /dev/hda* is unlocked)
+#     - it takes care of LVM-Volumes and unlocks them if they are affected
+#     - it takes care of dm_crypt-Disks and unlocks them if they are affected
+# TODO: from old installer, not fully adapted yet.
+function umount_all_affected()
+{
+	unset DEV NR EXHAUSITIVE
+	if [ "$1" = "-fdisk" ]; then
+		# partition itself and its "sister" partitions (just to be sure, for fdisk):
+		shift
+		#DEV="${1%%[0-9]*}"
+		DEV="$(get_disk "$1")"
+		NR="${1:${#disk}}"
+		EXHAUSITIVE=1
+	fi
+	[ -z "$DEV" ] && DEV="$(echo "$1" | dereferce_links_in_list)"
+	# Mounts
+	while IFS=" " read mnt_dev mnt_point mnt_dummy
+	do
+		[ "$mnt_point" = "/live/filesystem" -o -z "$mnt_point" ] && continue
+		case "$mnt_point" in
+		/|/cdrom|/dev|/dev/*|/isosrc|/proc|/proc/*|/ramdisk|/sys|/tmp) ;;
+		*)
+			echo $mnt_dev | dereferce_links_in_list | grep -q ^$DEV$ || continue
+			for umount_point in $(gawk '{print $2}' /proc/mounts | grep -e "^$mnt_point$" -e "^$mnt_point/" | sort -r)
+			do
+				fuser -km "$umount_point"
+				umount "$umount_point" &>/dev/null || \
+				umount -l "$umount_point"
+			done
+			;;
+		esac
+	done < /proc/mounts
+	# Swap
+	for i in $(grep -e "^$DEV" /proc/swaps  | cut -d\  -f1)
+	do
+		swapoff "$i";
+	done
+#	# LVM
+#	for i in $(pvdisplay -c 2>/dev/null | grep "$DEV" | cut -d: -f2 | sort | uniq)
+#	do
+#		lv_name="$(lvdisplay $i | gawk '/LV Name/{print $3}')"
+#		lv_dev="$(echo $lv_name | dereferce_links_in_list)"
+#		for dev in $( ( echo $lv_name; echo $lv_dev ) | sort | uniq)
+#		do
+#			# recursive function call
+#			umount_all_affected $dev
+#		done
+#		((EXHAUSITIVE)) && vgchange -a n $i &>/dev/null
+#	done
+#	# Crypttab
+#	for cmapname in $(grep $DEV /etc/crypttab | cut -d\  -f1)
+#	do
+#		umount_all_affected "/dev/mapper/$cmapname"
+#		((EXHAUSITIVE)) && cryptsetup remove $cmapname
+#	done
+}
+
+# Synopsis: prepare_partitions_for_install [--nomount]
+#
+# This function processes the hd_map-config:
+#   * create mountpoints
+#   * format the partitions if a filesystem is given
+#   * take care of LVM-Volumes and dm_crypt-Disks
+#   * create the specified mountpoints in $TARGET
+#   * mount the partitions to the target
+#   * mount (bind) /dev, /proc and /sys to the target
+#
+# --nomount simply doesn't mount or umount partitions
+# TODO: from old installer, not adapted yet.
+function prepare_partitions_for_install()
+{
+	send install_step prepare_partitions_for_install
+	emit_progress 0
+        local progress_steps=$(( $(wc -l <<<"$cfg_hdmap") ))
+	local progress=0
+	while IFS=: read device mountpoint filesystem automount
+	do	
+		[ "$1" != "--nomount" ] && umount_all_affected $device
+		
+		# format device with filesystem (if specified)
+		if [ "$filesystem" ]; then
+			
+			dd if=/dev/zero of=$device bs=1k count=16 >/dev/null 2>/dev/null # shutup! :-)
+			
+			TMP=/tmp/mkfs.$$
+			case "$filesystem" in
+			xfs)
+				mkfs.$filesystem -f $device 2> $TMP 1>&2
+				;;
+			reiser*)
+				echo y | mkfs.$filesystem $device 2> $TMP 1>&2
+				;;
+			jfs)
+				echo y | mkfs.$filesystem $device 2> $TMP 1>&2
+				;;
+			*)
+				mkfs.$filesystem $device 2> $TMP 1>&2
+				;;
+			esac
+
+			RC="$?"
+			if [ $RC -ne 0 ]; then
+				ERROR_MESSAGES=$(tail -8 $TMP)
+				echo "$ERROR_MESSAGES"
+				emit_error 1 "mkfs failed" || return 1
+			fi
+	
+			# Deactivate dir_index-feature of ext2/ext3/ext4-partitions
+			case $filesystem in
+				*ext*)
+					tune2fs -O ^dir_index $device &>/dev/null
+					;;
+			esac
+		fi
+		
+		mkdir -p ${TARGET}${mountpoint} # make sure mountpoint exists
+		
+		# only mount the partition if: 1. it has the automount flag
+		#                              2. the mountpoint exists on the Live system
+		#                          and 3. prepare_partitions_for_install was not called with "--nomount"
+		if [ "$automount" = "auto" -a "$1" != "--nomount" -a -d "/live/filesystem$mountpoint" ]; then
+			# mount device to mountpoint
+			EC="$(LC_ALL=C mount $device ${TARGET}${mountpoint} 2>&1)"
+			if (($?)); then
+				case "$EC" in
+				"*already mounted*") # then let's try "mount --bind"
+					already_mp="$(grep ^$device /proc/mounts | cut -d\  -f2)"
+					if [ -d "$already_mp" ]; then
+						awk '/^\/dev/{if($4 ~ /^rw/){print $1}}' /proc/mounts  | grep -qw $device || mount -o remount,rw "$already_mp"
+						mount --bind "$already_mp" ${TARGET}${mountpoint} 2>&1
+					fi
+					;;
+				*)
+					emit_error 1 "mount failed: $EC" || return 1
+					;;
+				esac
+			fi
+			if ! awk '/^\/dev/{if($4 ~ /^rw/){print $1}}' /proc/mounts | grep -qw $device; then
+				emit_error 1 "mount failed: $EC" || return 1
+			fi
+		fi
+		
+		# update progress
+		progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
+	done <<<"$cfg_hdmap"
+}

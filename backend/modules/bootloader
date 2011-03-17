@@ -1,0 +1,158 @@
+#!/bin/bash
+
+# Synopsis: list_bootloader_targets
+#
+# This function lists all disks and the root-partition if it is suitable to install a bootloader on it.
+# Output example:
+#   /dev/sda:MBR:250059350016
+#   /dev/sdb:MBR:400088457216
+#   /dev/sdb1:Rootpartition:60003385344
+function list_bootloader_targets()
+{
+        for disk in $(list_all_disks)
+        do
+                echo "$disk - MBR $(blockdev --getsize64 $disk)"
+        done
+	root_dev="$(hdmap_get device of mountpoint /)"
+	root_fs="$(hdmap_get filesystem of mountpoint /)"
+        [ -z "$root_fs" ] && root_fs=$(get_filesystem "$root_dev")
+        case $root_fs in
+        reiserfs|ext2|ext3|ext4)
+                list_linux_partitions | grep -q "^$root_dev$" &&
+                echo "$root_dev - Rootpartition $(blockdev --getsize64 $root_dev)"
+                ;;
+        esac
+}
+
+function send_bootloader_targets()
+{
+	send data bootloader_targets
+	list_bootloader_targets
+}
+
+# Synopsis: list_bootloaders
+#
+# This function lists all available bootloaders
+# Output example:
+#   BURG - Brand-new Universal loadeR from GRUB
+#   GRUB - GRand Unified Bootloader
+function list_bootloaders()
+{
+        for bl in burg grub
+        do
+                [ -x /usr/sbin/$bl-setup ] || continue
+                case $bl in
+                burg) echo "BURG - Brand-new Universal loadeR from GRUB";;
+                grub) echo "GRUB - GRand Unified Bootloader";;
+                esac
+        done
+}
+
+function send_bootloaders()
+{
+	send data bootloaders
+	list_bootloaders
+}
+
+function install_bootmanager_to_target()
+{
+    send install_step install_bootmanager_to_target
+    # force initrd update
+    [ -d $TARGET/var/lib/initramfs-tools ] && rm -f $TARGET/var/lib/initramfs-tools/*
+    chroot_it update-initramfs -utk all &>/dev/null
+
+    case "$cfg_bootloader" in
+    grub)
+        install_grub
+        ;;
+    burg)
+        install_burg
+        ;;
+    esac
+}
+
+function install_grub()
+{
+    rm -f $TARGET/boot/vmlinuz $TARGET/boot/System.map $TARGET/boot/initrd.img
+
+    # install grub
+    mkdir -p "$TARGET/boot/grub"
+    grub-install --recheck --no-floppy --root-directory=$TARGET "$cfg_bootloader_target" &>/dev/null || \
+    grub-install --force --recheck --no-floppy --root-directory=$TARGET "$cfg_bootloader_target" &>/dev/null
+
+#    # create device.map and save it to target
+#    export device_map=$TARGET/tmp/device.map
+#    get_device_map > $device_map
+#    cat $device_map > $TARGET/boot/grub/device.map
+#    rm -f $device_map
+
+    # preseed grub-pc with install-target
+    for path in /dev/disk/by-id/*
+    do
+    	[ -e "$path" ] || continue
+    	if [ "$(readlink -f "$path")" = "$(readlink -f "$cfg_bootloader_target")" ]; then
+            echo "grub-pc grub-pc/install_devices multiselect $path" | chroot_it debconf-set-selections &>/dev/null
+	    break
+	fi
+    done
+    
+    write_kernel_img_conf
+
+    # update grub
+    chroot_it update-grub &>/dev/null
+    DEBIAN_FRONTEND=noninteractive chroot_it dpkg-reconfigure grub-pc &>/dev/null
+    
+    return 0
+}
+
+function install_burg()
+{
+    rm -f $TARGET/boot/vmlinuz $TARGET/boot/System.map $TARGET/boot/initrd.img
+
+    # install burg
+    mkdir -p "$TARGET/boot/burg"
+    burg-install --recheck --no-floppy --root-directory=$TARGET "$cfg_bootloader_target" &>/dev/null || \
+    burg-install --force --recheck --no-floppy --root-directory=$TARGET "$cfg_bootloader_target" &>/dev/null
+
+#    # create device.map and save it to target
+#    export device_map=$TARGET/tmp/device.map
+#    get_device_map > $device_map
+#    cat $device_map > $TARGET/boot/burg/device.map
+#    rm -f $device_map
+
+    # preseed burg-pc with install-target
+    for path in /dev/disk/by-id/*
+    do
+    	[ -e "$path" ] || continue
+    	if [ "$(readlink -f "$path")" = "$(readlink -f "$cfg_bootloader_target")" ]; then
+            echo "burg-pc burg-pc/install_devices multiselect $path" | chroot_it debconf-set-selections &>/dev/null
+	    break
+	fi
+    done
+    
+    write_kernel_img_conf
+
+    # update burg
+    chroot_it update-burg &>/dev/null
+    DEBIAN_FRONTEND=noninteractive chroot_it dpkg-reconfigure burg-pc &>/dev/null
+    
+    return 0
+}
+
+function write_kernel_img_conf()
+{
+rm -f $TARGET/etc/kernel-img.conf
+cat << EOT > $TARGET/etc/kernel-img.conf
+# Kernel image management overrides
+# See kernel-img.conf(5) for details
+do_symlinks = yes
+relative_links = yes
+do_bootloader = no
+do_bootfloppy = no
+do_initrd = yes
+link_in_boot = no
+postinst_hook = update-$cfg_bootloader
+postrm_hook   = update-$cfg_bootloader
+EOT
+}
+

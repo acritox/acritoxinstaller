@@ -1,0 +1,2 @@
+#define BACKEND_DIR "@BACKEND_DIR@"
+#define BACKEND_PATH "@BACKEND_DIR@/backend.sh"

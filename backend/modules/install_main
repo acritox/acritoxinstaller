@@ -1,0 +1,302 @@
+#!/bin/bash
+
+# Synopsis: update_fstab_on_target
+#
+# This function is partly adapted from the Knoppix-Installer
+# It creates a new fstab for the new installed system in $TARGET.
+#   * proc, usbfs, sysfs, tmpfs: hardcoded
+#   * all mountpoints of the hd_map
+#   * cdroms, floppy
+#   * remove not needed device links
+function update_fstab_on_target()
+{
+	send install_step update_fstab_on_target
+	emit_progress 0
+	local progress_steps=$(( $(wc -l <<<"$cfg_hdmap") + 2 ))
+	local progress=0
+	
+	# Charset stuff for FAT/NTFS-Filesystems
+	unset utf_option nls
+	if [ "$(locale charmap)" = "UTF-8" ]; then
+		utf_option=",utf8"
+		nls=",nls=utf8"
+	fi
+	chroot_it locale-gen &>/dev/null
+	
+	# Build new /etc/fstab
+	cat <<EOF >$TARGET/etc/fstab
+# /etc/fstab: static file system information.
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+proc            /proc           proc    defaults        0       0
+EOF
+
+	[ -x $TARGET/etc/init.d/mountkernfs.sh ] || cat <<EOF >>$TARGET/etc/fstab
+sysfs           /sys            sysfs   defaults        0       0
+tmpfs           /dev/shm        tmpfs   defaults        0       0
+EOF
+
+	while IFS=: read device mountpoint filesystem automount
+	do
+		fstab_options=""; fstab_dump=0; fstab_pass=2; fstab_type=""
+		[ -z "$fstab_type" ] && fstab_type=$filesystem
+		[ -z "$fstab_type" ] && fstab_type=$(get_filesystem $device)
+		[ -z "$fstab_type" ] && fstab_type=auto
+		
+		case "$automount" in
+		auto)
+			fstab_options="defaults";;
+		*)
+			fstab_options="noauto,users";;
+		esac
+		
+		case "$fstab_type" in
+		msdos)
+			fstab_options="${fstab_options},umask=000,quiet${utf_option}"; fstab_pass=0;;
+		vfat)
+			fstab_options="${fstab_options},umask=000,shortname=mixed,quiet${utf_option}"; fstab_pass=0;;
+		esac
+		
+		if [ "$mountpoint" = "/" ]; then
+			fstab_pass=1
+			case $fstab_type in
+			reiser*|xfs|jfs)
+				fstab_options="defaults"
+				;;
+			*)
+				fstab_options="defaults,errors=remount-ro"
+				;;
+			esac
+		elif [ "${mountpoint:0:7}" = "/media/" ]; then
+			# don't run fsck on boot for all /media/* mountpoints
+			fstab_pass=0
+		else
+			# don't run fsck on boot if device is a removable disk (if group of /dev/XXX == floppy)
+			[ "$(stat --format "%G" $device)" = "floppy" ] && fstab_pass=0
+		fi
+		
+		fstab_options="${fstab_options##defaults,}"
+		
+		unset DEV UUID
+		case $device in
+		/dev/mapper/*) ;;
+		/dev/disk/by-uuid/*) DEV=/dev/$(readlink $device|sed s@../../@@)
+				     UUID="UUID=${device#/dev/disk/by-uuid/}"
+				     ;;
+		/dev/*) DEV=$device
+			UUID="UUID=$(get_partition_uuid $device)"
+			;;
+		UUID=*) UUID=$device
+			DEV=/dev/$(readlink /dev/disk/by-uuid/${device#UUID=}|sed s@../../@@)
+			;;
+		esac
+	
+		[ -n "${DEV#/dev/}" ] && echo "# $DEV" >> $TARGET/etc/fstab
+		if [ -n "${UUID#UUID=}" ]; then
+			printf "%-15s %-15s %-7s %-15s %-7s %s\n" "$UUID" "$mountpoint" "$fstab_type" "$fstab_options" "$fstab_dump" "$fstab_pass" >> $TARGET/etc/fstab
+		else
+			# this partition doesn't have an UUID
+			printf "%-15s %-15s %-7s %-15s %-7s %s\n" "$device" "$mountpoint" "$fstab_type" "$fstab_options" "$fstab_dump" "$fstab_pass" >> $TARGET/etc/fstab
+		fi
+		
+		# Remove not needed device links
+		[ "/media/${device##*/}" != "$mountpoint" ] && rmdir "$TARGET/media/${device##*/}" &>/dev/null
+		rm -f "$TARGET/home/$cfg_username/Desktop/${device##*/}"
+		
+		# update progress
+		progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
+	done <<<"$cfg_hdmap"
+
+	# Add swap to /etc/fstab
+	while read device
+	do
+		UUID="$(get_partition_uuid $device)"
+		if [ -z "$UUID" ]; then
+			# swap partition without UUID
+			swapoff $device
+			mkswap $device
+			swapon $device
+			UUID="$(get_partition_uuid $device)"
+		fi
+		[ -z "$UUID" ] && continue # should never happen...
+		
+		printf "%-15s %-15s %-7s %-15s %-7s %s\n" "UUID=$UUID" "none" "swap" "sw" "0" "0" >> $TARGET/etc/fstab
+	done < <(list_swap_partitions)
+	
+	# Add cdrom devices to /etc/fstab
+
+	CDROM=0
+	for c in $(gawk '/name/{for (i=NF;i>=3;i--) {print $i}}' /proc/sys/dev/cdrom/info 2>/dev/null); do
+	 [ -d $TARGET/media/cdrom$CDROM ] || mkdir -p $TARGET/media/cdrom$CDROM
+	 if [ "$CDROM" = "0" ]; then
+	  if [ "$(readlink $TARGET/media/cdrom)" != "cdrom0" ]; then
+	   rm -f $TARGET/media/cdrom
+	   ln -s cdrom0 $TARGET/media/cdrom
+	  fi
+	  if [ "$(readlink $TARGET/cdrom)" != "media/cdrom" ]; then
+	   rm -f $TARGET/cdrom
+	   ln -s media/cdrom $TARGET/cdrom
+	  fi
+	 fi
+	 printf "%-15s %-15s %-7s %-15s %-7s %s\n" "/dev/$c" "/media/cdrom$CDROM" "udf,iso9660" "user,noauto" "0" "0" >> $TARGET/etc/fstab
+	 CDROM=$(($CDROM+1))
+	done
+	if [ "$CDROM" = "0" ]; then
+	 rm -f $TARGET/cdrom $TARGET/media/cdrom
+	fi
+
+	# Add floppy devices to /etc/fstab
+
+	for f in $(ls -d /sys/block/fd* 2>/dev/null); do
+	 [ -d $TARGET/media/floppy${f#/sys/block/fd} ] || mkdir -p $TARGET/media/floppy${f#/sys/block/fd}
+	 printf "%-15s %-15s %-7s %-15s %-7s %s\n" "/dev${f#/sys/block}" "/media/floppy${f#/sys/block/fd}" "auto" "rw,user,noauto" "0" "0" >> $TARGET/etc/fstab
+	done
+	
+}
+
+# Synopsis: update_passwd_on_target
+#
+function update_passwd_on_target()
+{
+    send install_step update_passwd_on_target
+    chroot $TARGET sh -c "usermod --password '$cfg_rootpwd' root"
+    
+    if [ -x $ROOT/usr/sbin/adduser ]; then
+        LC_ALL=C chroot $TARGET adduser --disabled-password --force-badname --no-create-home --gecos "$cfg_realname,,," --uid 1000 "$cfg_username" >/dev/null
+    else
+        chroot $TARGET useradd -c "$cfg_realname,,," "$cfg_username" -u 1000 >/dev/null
+    fi
+
+    chroot $TARGET sh -c "usermod --password '$cfg_userpwd' '$cfg_username'"
+
+    for group in lpadmin scanner; do
+            chroot $TARGET addgroup --system $group >/dev/null 2>&1
+    done
+    for group in adm audio cdrom dialout floppy video plugdev dip lpadmin lp scanner powerdev netdev; do
+            chroot $TARGET adduser --force-badname "$cfg_username" $group >/dev/null 2>&1
+    done
+}
+
+# Synopsis: copy_home_to_target
+#
+# This function copies the home directory from the live user
+function copy_home_to_target()
+{
+	send install_step copy_home_to_target
+	#check if already data is there then stop
+	if [ -d "$TARGET/home/$cfg_username" ]; then
+		chroot "$TARGET" chown -R "$cfg_username":"$cfg_username" "/home/$cfg_username"
+		return 0
+	fi
+
+	if [ -d "/home/$FLL_LIVE_USER/.kde" ]; then
+		rm -rf "$TARGET/home/$FLL_LIVE_USER"
+		cp -a "/home/$FLL_LIVE_USER" "$TARGET/home"
+		[ "$cfg_username" != "$FLL_LIVE_USER" ] && mv "$TARGET/home/$FLL_LIVE_USER" "$TARGET/home/$cfg_username"
+	else
+		cp -a "$TARGET/etc/skel" "$TARGET/home"
+		mv "$TARGET/home/skel" "$TARGET/home/$cfg_username"
+	fi
+
+	# update home-path in user's config files
+	if [ "$cfg_username" != "$FLL_LIVE_USER" ]; then
+		rm -f "$TARGET/home/$cfg_username/.mozilla/appreg"
+		rm -f "$TARGET/home/$cfg_username/.mozilla/pluginreg.dat"
+		if [ -e "$TARGET/home/$cfg_username/.mozilla/$FLL_LIVE_USER" ]; then
+			[ -e "$TARGET/home/$cfg_username/.mozilla/default" ] || mv "$TARGET/home/$cfg_username/.mozilla/$FLL_LIVE_USER" "$TARGET/home/$cfg_username/.mozilla/default"
+			perl -pi -e 's/.*general.useragent.*\n?//' "$TARGET/home/$cfg_username/.mozilla/default/*/prefs.js"
+		fi
+
+		OLDHOME="/home/$FLL_LIVE_USER"
+		NEWHOME="/home/$cfg_username"
+		PART="$TARGET"
+		for f in $(find "$PART$NEWHOME" -exec grep -ls "$OLDHOME" {} \;|grep -v $0); do
+			perl -pi -e "s|$OLDHOME|$NEWHOME|g" "$f"
+		done
+	fi
+
+	# revert to plain debian .bashrc
+	cat "$TARGET/etc/skel/.bashrc" > "$TARGET/home/$cfg_username/.bashrc"
+	
+	# revert kdesu/sudo workaround
+	rm -f "$TARGET/home/$cfg_username/.kde/share/apps/konsole/su.desktop" \
+		"$TARGET/home/$cfg_username/.kde/share/apps/konsole/sumc.desktop" \
+		"$TARGET/home/$cfg_username/.kde/share/config/kdesurc" \
+		"$TARGET/home/$cfg_username/.kde4/share/config/kdesurc" \
+		"$TARGET/home/$cfg_username/.su-to-rootrc"
+        rm -rf "$TARGET/home/$cfg_username/.gconf/apps/gksu"
+	
+	# force kde first time configuration
+	if [ -f /etc/skel/.kde/share/config/kpersonalizerrc ]; then
+		perl -pi -e 's/FirstLogin=false/FirstLogin=true/g' "$TARGET/etc/skel/.kde/share/config/kpersonalizerrc"
+
+		# The users kde should be perfect, unless we just copied from template ...
+		[ ! -d "/home/$FLL_LIVE_USER/.kde" ] && perl -pi -e 's/FirstLogin=false/FirstLogin=true/g' "$TARGET/home/$cfg_username/.kde/share/config/kpersonalizerrc"
+	fi
+	
+	chroot "$TARGET" chown -R "$cfg_username":"$cfg_username" "/home/$cfg_username"
+}
+
+# Synopsis: copy_etc_to_target
+#
+# This function is partly adapted from the Knoppix-Installer
+function copy_etc_to_target()
+{
+	send install_step copy_etc_to_target
+	# UTC=no fix
+	if [ -f /etc/default/rcS -a -f $TARGET/etc/default/rcS ]; then
+		cat /etc/default/rcS > $TARGET/etc/default/rcS
+	fi
+	
+	cp -a /etc/timezone $TARGET/etc/timezone
+	cp -a /etc/localtime $TARGET/etc/localtime
+	cp -a /etc/default/keyboard $TARGET/etc/default/keyboard
+	cp -a /etc/default/locale $TARGET/etc/default/locale
+	cp -a /etc/locale.gen $TARGET/etc/locale.gen
+	#cp -a /etc/console/* $TARGET/etc/console/
+	#cp -a /etc/environment $TARGET/etc/environment
+	
+	# network
+	rm -f $TARGET/etc/network/interfaces
+	cp -a /etc/network/interfaces $TARGET/etc/network/interfaces
+
+	# create locales
+	chroot_it locale-gen &>/dev/null
+	chroot_it dpkg-reconfigure -fnoninteractive keyboard-configuration &>/dev/null
+
+	# nvidia autoinstall trigger
+	chroot_it update-rc.d -f kanotix remove &>/dev/null
+	rm -f $TARGET/etc/init.d/kanotix
+
+	# xorg.conf
+	debconf-get-selections | grep -e xserver-xorg -e tzdata | chroot_it debconf-set-selections &>/dev/null
+	rm -f $TARGET/etc/X11/xorg.conf*
+	chroot_it dpkg-reconfigure -phigh xserver-xorg &>/dev/null
+
+	# Save ALSA sound volume
+	if [ -e /proc/asound/modules ] && [ -x /usr/sbin/alsactl ]; then
+		/usr/sbin/alsactl store
+		if [ -f /var/lib/alsa/asound.state ]; then
+			cp /var/lib/alsa/asound.state "$TARGET/var/lib/alsa"
+		fi
+	fi
+	
+	# KDM: auto login
+	kdmrc=$TARGET/etc/kde3/kdm/kdmrc
+	[ -f $TARGET/etc/kde4/kdm/kdmrc ] && kdmrc=$TARGET/etc/kde4/kdm/kdmrc
+	if [ -e $kdmrc ]; then
+		perl -pi -e "s|^[#\s]*(AutoLoginUser).*|\1=$cfg_username|"  $kdmrc
+		[ "$cfg_autologin" = "on" ] && autologin="true" || autologin="false"
+		perl -pi -e "s|^[#\s]*(AutoLoginEnable).*|\1=$autologin|"  $kdmrc
+	fi
+
+	# Crypto
+	cp -a /etc/crypttab $TARGET/etc/crypttab
+
+	# PolicyKit
+	if [ -e /etc/PolicyKit/PolicyKit.conf -a -e $TARGET/etc/PolicyKit/PolicyKit.conf ]; then
+		sed '/<!-- .* user in live session -->/d; s/user="'"$FLL_LIVE_USER"'"/user="'"$cfg_username"'"/;' \
+		< /etc/PolicyKit/PolicyKit.conf > $TARGET/etc/PolicyKit/PolicyKit.conf
+	fi
+}
+

@@ -1,0 +1,75 @@
+#!/bin/bash
+
+function do_install()
+{
+	send install_step check_partitions_for_install
+	check_partitions_for_install
+	prepare_target
+	prepare_partitions_for_install
+	copy_system_to_target
+	update_fstab_on_target
+	update_passwd_on_target
+	copy_home_to_target
+	copy_etc_to_target
+	configure_target_update_files
+	configure_target_purge_live_only_stuff
+	configure_target_services
+	install_bootmanager_to_target
+	send install_step cleanup
+	cleanup
+}
+
+function prepare_target()
+{
+	send install_step prepare_target
+	mkdir -p /live/hdinstall
+	export TARGET=/live/hdinstall
+}
+
+# Synopsis: chroot_it <...>
+#
+# execute the supplied command in the target
+function chroot_it()
+{
+        [ -n "$TARGET" -a $UID -eq 0 ] && chroot $TARGET "$@"
+}
+
+# Synopsis: copy_system_to_target
+#
+# This function copies the system to the target.
+# Therefore $TARGET and all partitions of hd_map have to be mounted
+# this should have be done in the prepare-stage (see prepare_partitions_for_install)
+#
+function copy_system_to_target()
+{
+	send install_step copy_system_to_target
+	emit_progress 0
+	calculate_min_space
+	orig_size="$ESTIMATED_ROOT_MIN"
+	dest_size_before=$(di -dm -fSMu | gawk '/\/live\/hdinstall/{used+=int($3)} END{print int(used)}')
+	dest_size_diff=0
+	
+	cd /live/filesystem
+	cp -a * $TARGET &
+	
+	cp=$!
+	old_percent=0
+	while ps --pid $cp &>/dev/null
+	do
+		dest_size=$(di -dm -fSMu | gawk '/\/live\/hdinstall/{used+=int($3)} END{print int(used)}')
+		dest_size_diff=$(( $dest_size - $dest_size_before ))
+		percent=$((( 100 * $dest_size_diff ) / $orig_size ))
+		if [ "$percent" != "$old_percent" ]; then
+			emit_progress $percent
+			old_percent="$percent"
+		fi
+		sleep 5
+	done
+	
+	sync
+	mkdir -p "$TARGET/proc" "$TARGET/dev" "$TARGET/sys"
+	mount --bind /proc "$TARGET/proc"
+	mount --bind /dev "$TARGET/dev"
+	mount --bind /sys "$TARGET/sys"
+}
+

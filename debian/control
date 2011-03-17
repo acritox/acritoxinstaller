@@ -1,0 +1,19 @@
+Source: acritoxinstaller
+Section: admin
+Priority: optional
+Maintainer: Andreas Loibl <andreas@andreas-loibl.de>
+Uploaders: Joerg Schirottke <master@kanotix.com>
+Build-Depends: cdbs, debhelper (>= 7.0.50~), cmake, libqt4-dev
+Standards-Version: 3.8.4
+
+Package: acritoxinstaller
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: AcritoxInstaller
+ Qt4 frontend and bash backend to install debian-live-LiveCDs
+
+Package: acritoxinstaller-kanotix
+Architecture: any
+Depends: acritoxinstaller (= ${source:Version})
+Description: AcritoxInstaller for KANOTIX
+

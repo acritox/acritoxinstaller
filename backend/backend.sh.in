@@ -1,0 +1,96 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+SEARCHPATH="@DATA_INSTALL_DIR@"
+[ ! -e "$SEARCHPATH" -a -e ./modules ] && SEARCHPATH="."
+
+for i in $(find $SEARCHPATH/modules/ -type f | sort); do
+	source $i
+done
+
+function print_usage()
+{
+cat <<EOF >&2
+$(basename $0):
+
+ -ni
+        NonInteractive mode, no prompt is shown and INSTALLER_OUTPUT is set to 1
+ -e command
+        Run "command"
+
+EOF
+exit 0
+}
+
+function set_debug()
+{
+    case $1 in
+    on)
+        PS4="<acritoxinstaller debug> "
+        set -x
+        ;;
+    off)
+        set +x
+        PS4="+"
+        ;;
+    esac
+}
+
+if ((UID)); then
+	p="$PWD/$(basename "$0")"
+	if [ -x /usr/bin/sudo ]; then
+		if /usr/bin/sudo -n -l "$p" &>/dev/null; then
+			/usr/bin/sudo "$p" "$@"
+			exit $?
+		fi
+	fi
+	if [ -x /usr/lib/kde4/libexec/kdesu ]; then
+		/usr/lib/kde4/libexec/kdesu --noignorebutton -d -- "$p" --pid $$ "$@" &>/dev/null
+		exit $?
+	fi
+	if [ -z "$as_root" ]; then
+		for as_root in /usr/bin/kdesu /usr/bin/gksu exec
+		do
+			[ -x $as_root ] && break
+		done
+	fi
+	$as_root "$p" --pid $$ "$@" &>/dev/null
+	exit $?
+fi
+
+while [ "$1" ]
+do
+	case $1 in
+	"-ni")
+		export INSTALLER_OUTPUT=1
+		;;
+	"-e")
+		shift
+		eval "$@"
+		exit $?
+		;;
+	"--pid")
+		exec 0<"/proc/$2/fd/0" 1>"/proc/$2/fd/1" 2>"/proc/$2/fd/2"
+		shift
+		;;
+	"-h")
+		print_usage
+		;;
+	esac
+	shift
+done
+
+EOT="$(echo -e '\004')"
+while true
+do
+	if ((INSTALLER_OUTPUT)); then
+	        echo "<acritoxinstaller prompt>"
+		IFS=" " read -d "$EOT" -r command params
+	else
+		IFS=" " read -er -p "installer> " command params
+	fi
+	declare -F ${command}_pre &>/dev/null && eval "${command}_pre"
+	eval "$command $params"
+	declare -F ${command}_post &>/dev/null && eval "${command}_post"
+done
+

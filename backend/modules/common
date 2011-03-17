@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Synopsis: dereferce_links_in_list
+#
+# This function reads a list from STDIN, dereferences the links and prints it to STDOUT
+function dereferce_links_in_list()
+{
+        for lnk in $(cat)
+        do
+                readlink -m $lnk
+        done
+}
+

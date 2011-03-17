@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=acritoxinstaller
+Exec=acritoxinstaller
+Icon=acritoxinstaller
+Type=Application
+GenericName=Install Kanotix
+GenericName[de]=Kanotix installieren
+Comment=Install Kanotix
+Comment[de]=Kanotix installieren

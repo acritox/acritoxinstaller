@@ -1,0 +1,24 @@
+#!/bin/bash
+
+function run_partmgr()
+{
+	case "$1" in
+	cfdisk|fdisk)
+		TERM=xterm /sbin/"$1" "$2"
+		;;
+	gparted|qtparted)
+		"$1" "$2"
+		;;
+	esac
+}
+
+function send_partition_managers()
+{
+	send data partition_managers
+        for app in cfdisk gparted qtparted fdisk
+        do
+                which $app &>/dev/null || continue
+		echo $app
+	done
+}
+

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>wpInstallation</class>
+ <widget class="QWizardPage" name="wpInstallation">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>515</width>
+    <height>389</height>
+   </rect>
+  </property>
+  <property name="title">
+   <string>Installation</string>
+  </property>
+  <property name="subTitle">
+   <string>This may take some time...</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QListWidget" name="listWidget"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="lblCurrent">
+     <property name="text">
+      <string>Current task:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="progressCurrent"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="lblCompleted">
+     <property name="text">
+      <string>Installation completed:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="progressCompleted"/>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

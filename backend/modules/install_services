@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Synopsis: configure_target_services
+#
+# This function configures the services and their autostart
+function configure_target_services()
+{
+    send install_step configure_target_services
+    # prepare ssh
+    if [ /etc/init.d/ssh ]; then
+            if [ ! -e "$TARGET/etc/ssh/ssh_host_rsa_key" ]; then
+                    ssh-keygen -q -t rsa -f "$TARGET/etc/ssh/ssh_host_rsa_key" -C '' -N ''
+            fi
+            if [ ! -e "$TARGET/etc/ssh/ssh_host_dsa_key" ]; then
+                    ssh-keygen -q -t dsa -f "$TARGET/etc/ssh/ssh_host_dsa_key" -C '' -N ''
+            fi
+    fi
+}
+

@@ -38,6 +38,8 @@ EOF
 
 	while IFS=: read device mountpoint filesystem automount
 	do
+		[ -z "$mountpoint" ] && continue
+
 		fstab_options=""; fstab_dump=0; fstab_pass=2; fstab_type=""
 		[ -z "$fstab_type" ] && fstab_type=$filesystem
 		[ -z "$fstab_type" ] && fstab_type=$(get_filesystem $device)

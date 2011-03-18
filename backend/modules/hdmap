@@ -338,3 +338,28 @@ function prepare_partitions_for_install()
 		progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
 	done <<<"$cfg_hdmap"
 }
+
+function get_full_hd_map()
+{
+        (
+                echo "$cfg_hdmap"
+		root_disk="$(get_disk "$(hdmap_get device of mountpoint /)")"
+                for part in $(list_all_partitions)
+                do
+                        if is_removeable "$part" && [ "$(get_disk "$part")" != "$root_disk" ]; then
+                                echo "$part:::"
+                        else
+                                echo "$part:/media/$(basename "$part")::auto"
+                        fi
+                done
+                for part in $(list_linux_partitions)
+                do
+                        if is_removeable "$part" && [ "$(get_disk "$part")" != "$root_disk" ]; then
+                                echo "$part:::"
+                        else
+                                echo "$part:/media/$(basename "$part")::auto"
+                        fi
+                done
+        ) | sort -u -t: -k1,1
+}
+

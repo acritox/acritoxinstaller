@@ -5,7 +5,10 @@ function init_installer()
 	[ -f /etc/default/distro ] && . /etc/default/distro
 	export FLL_DISTRO_MODE FLL_DISTRO_NAME FLL_LIVE_USER
 	mkdir -p /live/filesystem
-	[ -d /live/filesystem/usr ] || mount -o ro /dev/loop0 /live/filesystem
+	if [ ! -d /live/filesystem/usr ]; then
+		LOOPDEV="$(losetup --all | awk -F: '/\/live\/image\/live/&&/filesystem/{print $1}')"
+		[ "$LOOPDEV" ] && mount -o ro "$LOOPDEV" /live/filesystem
+	fi
 	cfg_set hostname "${FLL_DISTRO_NAME}Box"
 }
 

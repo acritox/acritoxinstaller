@@ -55,9 +55,9 @@ function get_root()
 			exit $?
 		fi
 		if [ -z "$as_root" ]; then
-			for as_root in /usr/bin/kdesu /usr/bin/gksu exec
+			for as_root in kdesu gksu exec
 			do
-				[ -x $as_root ] && break
+				which $as_root &>/dev/null && break
 			done
 		fi
 		$as_root "$p" --pid $$ "${O_ARGS[@]}" &>/dev/null

@@ -225,8 +225,12 @@ function copy_home_to_target()
 		"$TARGET/home/$cfg_username/.kde/share/apps/konsole/sumc.desktop" \
 		"$TARGET/home/$cfg_username/.kde/share/config/kdesurc" \
 		"$TARGET/home/$cfg_username/.kde4/share/config/kdesurc" \
+		"$TARGET/home/$cfg_username/.trinity/share/config/kdesurc" \
 		"$TARGET/home/$cfg_username/.su-to-rootrc"
         rm -rf "$TARGET/home/$cfg_username/.gconf/apps/gksu"
+	# revert trinity kdesu workaround to default
+	[ -e "$TARGET/etc/skel/.trinity/share/config/kdesurc" ] && \
+		cp "$TARGET/etc/skel/.trinity/share/config/kdesurc" "$TARGET/home/$cfg_username/.trinity/share/config/kdesurc"
 	
 	# force kde first time configuration
 	if [ -f /etc/skel/.kde/share/config/kpersonalizerrc ]; then

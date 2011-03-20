@@ -1,3 +1,11 @@
+acritoxinstaller (0.2.2) unstable; urgency=low
+
+  * use "which" instead of full path for kdesu/ gksu
+  * trinity kdesurc restore
+  * loop-device and fstab fixes
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Sun, 20 Mar 2011 18:39:18 +0100
+
 acritoxinstaller (0.2.1) unstable; urgency=low
 
   * Initial release.

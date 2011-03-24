@@ -13,7 +13,7 @@ Description: AcritoxInstaller
  Qt4 frontend and bash backend to install debian-live-LiveCDs
 
 Package: acritoxinstaller-kanotix
-Architecture: any
+Architecture: all
 Depends: acritoxinstaller (= ${source:Version})
 Description: AcritoxInstaller for KANOTIX
 

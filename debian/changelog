@@ -1,3 +1,9 @@
+acritoxinstaller (0.2.3) unstable; urgency=low
+
+  * added hdmap- and (initial) devicemapper-support to frontend.
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Fri, 25 Mar 2011 04:22:10 +0100
+
 acritoxinstaller (0.2.2) unstable; urgency=low
 
   * use "which" instead of full path for kdesu/ gksu

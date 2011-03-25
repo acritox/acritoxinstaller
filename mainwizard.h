@@ -15,6 +15,7 @@ class MainWizard : public QWizard
 	    Page_PartManSel,
 	    Page_PartMan,
 	    Page_RootPartition,
+	    Page_HdMap,
 	    Page_Bootloader,
 	    Page_RootPwd,
 	    Page_UserCfg,

@@ -107,9 +107,6 @@
    </item>
    <item row="4" column="1">
     <widget class="QCheckBox" name="chkAdvanced">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="text">
       <string>advanced partition options</string>
      </property>

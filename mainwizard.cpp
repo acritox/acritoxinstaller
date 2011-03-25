@@ -7,6 +7,7 @@
 #include "wizard/partmansel.h"
 #include "wizard/partman.h"
 #include "wizard/rootpartition.h"
+#include "wizard/hdmap.h"
 #include "wizard/bootloader.h"
 #include "wizard/rootpwd.h"
 #include "wizard/usercfg.h"
@@ -30,6 +31,7 @@ MainWizard::MainWizard()
   setPage(Page_PartManSel, new wpPartManSel(this));
   setPage(Page_PartMan, new wpPartMan(this));
   setPage(Page_RootPartition, new wpRootPartition(this));
+  setPage(Page_HdMap, new wpHdMap(this));
   setPage(Page_Bootloader, new wpBootloader(this));
   setPage(Page_RootPwd, new wpRootPwd(this));
   setPage(Page_UserCfg, new wpUserCfg(this));

@@ -36,6 +36,17 @@ function list_all_partitions()
 	awk -vli="$(awk '{if($2=="sd") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if($1==list[i]&&$2%16!=0) print "/dev/"$4;}' /proc/partitions
 }
 
+# Synopsis: list_dm_partitions
+#
+# This function lists all device-mapper partitions
+# Output example:
+#   /dev/mapper/volg-home
+#   /dev/mapper/cryptoroot
+function list_dm_partitions()
+{
+	ls /dev/mapper/* 2>/dev/null | fmt -w1 | grep -v "/control$"
+}
+
 # Synopsis: (e.g.) list_all_partitions | partitions_usage_details
 #
 # This function lists usage details for a list of partitions from STDIN

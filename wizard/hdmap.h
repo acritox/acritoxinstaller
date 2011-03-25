@@ -1,28 +1,29 @@
-#ifndef rootpartition_H
-#define rootpartition_H
+#ifndef hdmap_H
+#define hdmap_H
 
-#include "ui_rootpartition.h"
+#include "ui_hdmap.h"
 #include "../backend.h"
 
-class wpRootPartition : public QWizardPage, Ui::wpRootPartition
+class wpHdMap : public QWizardPage, Ui::wpHdMap
 {
   Q_OBJECT
 
   public:
-    wpRootPartition(QWidget *parent = 0);
+    wpHdMap(QWidget *parent = 0);
     void initializePage();
     void clearPage();
-    int nextId() const;
     bool isComplete() const;
     bool validatePage();
     
   private:
     Backend* backend;
+    QStringList filesystems;
     
   private slots:
     void receivedDataLine(QString data, QString line);
     void updateComplete();
+    void backendFinishedCommand(QString command);
     
 };
 
-#endif // rootpartition_H
+#endif // hdmap_H

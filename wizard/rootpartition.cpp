@@ -2,6 +2,7 @@
 #include "rootpartition.h"
 #include "../listdelegate.h"
 #include "../listitem.h"
+#include "../mainwizard.h"
 
 wpRootPartition::wpRootPartition(QWidget *parent) : QWizardPage(parent)
 {
@@ -9,6 +10,7 @@ wpRootPartition::wpRootPartition(QWidget *parent) : QWizardPage(parent)
   backend = Backend::instance();
   connect(backend, SIGNAL(receivedDataLine(QString,QString)), this, SLOT(receivedDataLine(QString,QString)));
   connect(rootPartitionDev, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(updateComplete()));
+  connect(chkAdvanced, SIGNAL(stateChanged(int)), this, SLOT(updateComplete()));
 }
 
 void wpRootPartition::initializePage()
@@ -44,15 +46,24 @@ void wpRootPartition::updateComplete()
 
 bool wpRootPartition::isComplete() const
 {
-  if(!rootPartitionDev->currentItem()) return false;
+  if(!chkAdvanced->isChecked() && !rootPartitionDev->currentItem()) return false;
   return true;
 }
 
 bool wpRootPartition::validatePage()
 {
   if(!isComplete()) return false;
-  backend->exec(QString("hdmap_set %1:/:%2:auto")
+  if(rootPartitionDev->currentItem())
+    backend->exec(QString("hdmap_set %1:/:%2:auto")
 	  .arg(rootPartitionDev->currentItem()->text().section(" ",0,0))
 	  .arg(chkFormat->isChecked() ? rootPartitionFs->currentText() : ""));
   return true;
+}
+
+int wpRootPartition::nextId() const
+{
+    if(chkAdvanced->isChecked())
+      return MainWizard::Page_HdMap;
+    else
+      return MainWizard::Page_Bootloader;
 }

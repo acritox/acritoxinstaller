@@ -339,8 +339,9 @@ function prepare_partitions_for_install()
 	done <<<"$cfg_hdmap"
 }
 
-function get_full_hd_map()
+function fill_hdmap()
 {
+	cfg_set hdmap "$(
         (
                 echo "$cfg_hdmap"
 		root_disk="$(get_disk "$(hdmap_get device of mountpoint /)")"
@@ -360,6 +361,10 @@ function get_full_hd_map()
                                 echo "$part:/media/$(basename "$part")::auto"
                         fi
                 done
-        ) | sort -u -t: -k1,1
+                for part in $(list_dm_partitions)
+                do
+			echo "$part:::"
+		done
+        ) | sort -u -t: -k1,1)"
 }
 

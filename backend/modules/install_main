@@ -276,7 +276,7 @@ function copy_etc_to_target()
 
 	# xorg.conf
 	debconf-get-selections | grep -e xserver-xorg -e tzdata | chroot_it debconf-set-selections &>/dev/null
-	rm -f $TARGET/etc/X11/xorg.conf*
+	#rm -f $TARGET/etc/X11/xorg.conf*
 	chroot_it dpkg-reconfigure -phigh xserver-xorg &>/dev/null
 
 	# Save ALSA sound volume

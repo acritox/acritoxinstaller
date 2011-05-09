@@ -5,8 +5,24 @@ function init_installer()
 	[ -f /etc/default/distro ] && . /etc/default/distro
 	export FLL_DISTRO_MODE FLL_DISTRO_NAME FLL_LIVE_USER
 	mkdir -p /live/filesystem
+	LOOPDEV="$(losetup --all | awk -F: '/\/live\/image\/live/&&/filesystem/{print $1}')"
+	if [ -e /live/gfxoverlay.active ]; then
+		mkdir -p /live/filesystem.main
+		gfx="$(cat /live/gfxoverlay.active)"
+		bit=32
+		[ "$(uname -m)" = "x86_64" ] && bit=64
+		if [ ! -d /live/filesystem.main/usr ]; then
+			[ "$LOOPDEV" ] && mount -o ro "$LOOPDEV" /live/filesystem.main
+			for dir in /live/gfxoverlay/overlay$bit-$gfx /live/gfxoverlay/$gfx /live/gfxoverlay
+			do
+				if [ -d $dir/lib ]; then
+					mount -t aufs -o br:$dir:/live/filesystem.main none /live/filesystem
+					break
+				fi
+			done
+		fi
+	fi
 	if [ ! -d /live/filesystem/usr ]; then
-		LOOPDEV="$(losetup --all | awk -F: '/\/live\/image\/live/&&/filesystem/{print $1}')"
 		[ "$LOOPDEV" ] && mount -o ro "$LOOPDEV" /live/filesystem
 	fi
 	cfg_set hostname "${FLL_DISTRO_NAME}Box"

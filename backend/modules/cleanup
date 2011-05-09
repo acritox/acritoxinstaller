@@ -11,5 +11,9 @@ function cleanup()
         umount "$TARGET" &>/dev/null
         umount "/live/filesystem" &>/dev/null
 	rmdir "$TARGET" "/live/filesystem" &>/dev/null
+	if [ -d /live/filesystem.main ]; then
+		umount "/live/filesystem.main" &>/dev/null
+		rmdir "/live/filesystem.main" &>/dev/null
+	fi
 }
 

@@ -17,6 +17,7 @@ void wpPartitions::initializePage()
   listWidget->clear();
   listWidget->addItem(new ListItem(tr("Manual partitioning"), tr("You will have to do the partitioning with a partition-manager manually. This way you have more possibilities to adjust the installation to your needs. The automatic partitioning lacks several features and is only a (computer generated) list of some possible options."), "partitionmanager", "manual"));
   listWidget->addItem(new ListItem(tr("Already partitioned"), tr("If you have already partitioned for the installation and don't want to start a partition manager then select this."), "drive-harddisk", "already"));
+  listWidget->setCurrentRow(0);
   clearPage();
 }
 

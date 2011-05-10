@@ -14,7 +14,7 @@
    <string>Partitions</string>
   </property>
   <property name="subTitle">
-   <string>Mmmmmh! Partitions!</string>
+   <string>Please select your preferred way to partition your harddisks</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">

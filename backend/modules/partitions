@@ -261,4 +261,15 @@ function get_filesystem_type()
         # qnx4, udf, ufs, hpfs, sysv, swsuspend, ocfs, ocfs2
 }
 
+# Synopsis: get_partition_uuid <device>
+#
+# This function returns the UUID of the filesystem on the supplied device.
+# Output example:
+#   27abd981-a39e-469d-a29b-0862604f29ee
+function get_partition_uuid()
+{
+        if [ -x /sbin/blkid ]; then
+                /sbin/blkid -s UUID -o value "$1"
+        fi
+}
 

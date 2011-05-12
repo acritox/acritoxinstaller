@@ -345,7 +345,7 @@ function fill_hdmap()
         (
                 echo "$cfg_hdmap"
 		root_disk="$(get_disk "$(hdmap_get device of mountpoint /)")"
-                for part in $(list_all_partitions)
+                for part in $(list_partitions -usage filesystem)
                 do
                         if is_removeable "$part" && [ "$(get_disk "$part")" != "$root_disk" ]; then
                                 echo "$part:::"

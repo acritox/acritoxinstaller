@@ -1,3 +1,15 @@
+acritoxinstaller (0.2.9) unstable; urgency=low
+
+  * UUID/ hdmap fixes. 
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Wed, 14 Sep 2011 19:21:27 +0200
+
+acritoxinstaller (0.2.8) unstable; urgency=low
+
+  * initial help-texts.
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Wed, 11 May 2011 12:08:34 +0200
+
 acritoxinstaller (0.2.5) unstable; urgency=low
 
   * don't remove xorg.conf on target

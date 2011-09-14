@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.10) unstable; urgency=low
+
+  * use a loopback-only /etc/network/interfaces (because of network-manager)
+  * no "errors=remount-ro" option for btrfs
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Thu, 15 Sep 2011 00:02:50 +0200
+
 acritoxinstaller (0.2.9) unstable; urgency=low
 
   * UUID/ hdmap fixes. 

@@ -262,10 +262,6 @@ function copy_etc_to_target()
 	#cp -a /etc/console/* $TARGET/etc/console/
 	#cp -a /etc/environment $TARGET/etc/environment
 	
-	# network
-	rm -f $TARGET/etc/network/interfaces
-	cp -a /etc/network/interfaces $TARGET/etc/network/interfaces
-
 	# create locales
 	chroot_it locale-gen &>/dev/null
 	chroot_it dpkg-reconfigure -fnoninteractive keyboard-configuration &>/dev/null

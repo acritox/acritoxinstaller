@@ -62,7 +62,11 @@ EOF
 		if [ "$mountpoint" = "/" ]; then
 			fstab_pass=1
 			case $fstab_type in
-			reiser*|xfs|jfs|btrfs)
+                        btrfs)
+				fstab_options="defaults"
+                                fstab_pass=0
+                                ;;
+			reiser*|xfs|jfs)
 				fstab_options="defaults"
 				;;
 			*)

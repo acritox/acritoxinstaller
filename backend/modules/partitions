@@ -133,10 +133,20 @@ function list_partitions()
 #   /dev/sdb1
 function list_linux_partitions()
 {
+    (
     for disk in $(list_all_disks)
     do
         LC_ALL=C sfdisk -l "$disk" 2>/dev/null | sed 's/[*+]//g;' | gawk '/^\/dev/{if($6 == 83){print $1}}'
     done
+    for part in $(list_all_partitions)
+    do
+        case "$(blkid -p -s PART_ENTRY_TYPE -o value "$part")" in
+            0x83|ebd0a0a2-b9e5-4433-87c0-68b6b72699c7)
+                echo "$part"
+                ;;
+        esac
+    done
+    ) | sort -u
 }
 
 # Synopsis: list_swap_partitions
@@ -147,10 +157,20 @@ function list_linux_partitions()
 #   /dev/sdb1
 function list_swap_partitions()
 {
+    (
     for disk in $(list_all_disks)
     do
         LC_ALL=C sfdisk -l "$disk" 2>/dev/null | sed 's/[*+]//g;' | gawk '/^\/dev/{if($6 == 82){print $1}}'
     done
+    for part in $(list_all_partitions)
+    do
+        case "$(blkid -p -s PART_ENTRY_TYPE -o value "$part")" in
+            0x82|0657fd6d-a4ab-43c4-84e5-0933c84b4f4f)
+                echo "$part"
+                ;;
+        esac
+    done
+    ) | sort -u
 }
 
 # Synopsis: get_disk <partition>
@@ -217,7 +237,7 @@ function send_possible_root_partitions()
 function send_possible_root_filesystems()
 {
 	send data possible_root_filesystems
-	for fs in ext4 ext3 reiserfs xfs jfs; do echo $fs; done
+	for fs in ext4 ext3 reiserfs btrfs xfs jfs; do echo $fs; done
 }
 
 # Synopsis: get_filesystem <device>
@@ -250,7 +270,7 @@ function get_filesystem_type()
                 filesystem="$(get_filesystem "$1")"
         fi
         case $filesystem in
-        ext4|ext3|ext2|reiserfs|xfs|minix|hfs|efs|reiser4|jfs) echo Linux;;
+        ext4|ext3|ext2|reiserfs|xfs|minix|hfs|efs|reiser4|jfs|btrfs) echo Linux;;
         iso9660) echo CD-ROM;;
         vfat|ntfs) echo Windows;;
         swap) echo Swap;;

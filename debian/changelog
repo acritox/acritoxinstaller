@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.11) unstable; urgency=low
+
+  * disable fsck for btrfs
+  * add GPT support
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Thu, 15 Sep 2011 17:34:57 +0200
+
 acritoxinstaller (0.2.10) unstable; urgency=low
 
   * use a loopback-only /etc/network/interfaces (because of network-manager)

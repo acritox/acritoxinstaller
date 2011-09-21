@@ -57,6 +57,7 @@ bool wpRootPartition::validatePage()
     backend->exec(QString("hdmap_set %1:/:%2:auto")
 	  .arg(rootPartitionDev->currentItem()->text().section(" ",0,0))
 	  .arg(chkFormat->isChecked() ? rootPartitionFs->currentText() : ""));
+    backend->exec("fill_hdmap");
   return true;
 }
 

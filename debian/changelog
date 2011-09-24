@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.12) unstable; urgency=low
+
+  * update-initramfs on installation target
+  * call fill_hdmap when using simple partitioning
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Sun, 25 Sep 2011 00:13:11 +0200
+
 acritoxinstaller (0.2.11) unstable; urgency=low
 
   * disable fsck for btrfs

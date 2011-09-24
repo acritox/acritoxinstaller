@@ -58,7 +58,6 @@ function install_bootmanager_to_target()
 {
     send install_step install_bootmanager_to_target
     # force initrd update
-    [ -d $TARGET/var/lib/initramfs-tools ] && rm -f $TARGET/var/lib/initramfs-tools/*
     chroot_it update-initramfs -utk all &>/dev/null
 
     case "$cfg_bootloader" in

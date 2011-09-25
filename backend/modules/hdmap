@@ -365,6 +365,6 @@ function fill_hdmap()
                 do
 			echo "$part:::"
 		done
-        ) | sort -u -t: -k1,1)"
+        ) | sort -u -t: -k1,1 | sort -t: -k2,2)"
 }
 

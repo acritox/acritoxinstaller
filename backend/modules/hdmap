@@ -341,7 +341,7 @@ function prepare_partitions_for_install()
 
 function fill_hdmap()
 {
-	cfg_set hdmap "$(
+	hdmap_set "$(
         (
                 echo "$cfg_hdmap"
 		root_disk="$(get_disk "$(hdmap_get device of mountpoint /)")"
@@ -365,6 +365,6 @@ function fill_hdmap()
                 do
 			echo "$part:::"
 		done
-        ) | sort -u -t: -k1,1 | sort -t: -k2,2)"
+        ) | sort -u -t: -k1,1)"
 }
 

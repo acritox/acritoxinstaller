@@ -2,6 +2,7 @@
 #include "hdmap.h"
 #include "../listdelegate.h"
 #include "../listitem.h"
+#include "../mainwizard.h"
 
 wpHdMap::wpHdMap(QWidget *parent) : QWizardPage(parent)
 {
@@ -44,11 +45,15 @@ void wpHdMap::receivedDataLine(QString data, QString line)
 
 void wpHdMap::receivedCommand(QString command, QString args)
 {
+  if(this->wizard()->currentId() != MainWizard::Page_HdMap) return;
+  
   if(command == "error") checkPassed = false;
 }
 
 void wpHdMap::backendFinishedCommand(QString command)
 {
+  if(this->wizard()->currentId() != MainWizard::Page_HdMap) return;
+  
   if(command == "fill_hdmap")
   {
   

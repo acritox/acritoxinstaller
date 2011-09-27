@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.15) unstable; urgency=low
+
+  * reordered old code
+  * added missing signal-slot-connections, check current wizardpage
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Tue, 27 Sep 2011 23:29:49 +0200
+
 acritoxinstaller (0.2.14) unstable; urgency=low
 
   * strip_live_media, error handling, hdmap fixes

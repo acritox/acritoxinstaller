@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.14) unstable; urgency=low
+
+  * strip_live_media, error handling, hdmap fixes
+  * ignore backup files
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Tue, 27 Sep 2011 21:43:59 +0200
+
 acritoxinstaller (0.2.13) unstable; urgency=low
 
   * fix hdmap order

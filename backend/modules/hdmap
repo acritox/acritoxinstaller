@@ -21,15 +21,6 @@ cat <<"EOT"
 EOT
 }
 
-# FIXME TODO OLD OUTDATED 
-function emit_progress()
-{
-        percent=$1
-        [ "$percent" -gt 100 ] && percent=100
-        send progress "$percent"
-}
-
-
 # Synopsis: is_disk /dev/xyz
 #
 # This function returns 0 if the supplied argument is a disk.

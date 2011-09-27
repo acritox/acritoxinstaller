@@ -19,3 +19,10 @@ function send_error()
 	return 1
 }
 
+function emit_progress()
+{
+        percent=$1
+        [ "$percent" -gt 100 ] && percent=100
+        send progress "$percent"
+}
+

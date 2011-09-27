@@ -18,10 +18,13 @@ class wpRootPartition : public QWizardPage, Ui::wpRootPartition
     
   private:
     Backend* backend;
+    bool checkPassed;
     
   private slots:
     void receivedDataLine(QString data, QString line);
     void updateComplete();
+    void backendFinishedCommand(QString command);
+    void receivedCommand(QString command, QString args);
     
 };
 

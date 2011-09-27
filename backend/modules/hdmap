@@ -22,13 +22,6 @@ EOT
 }
 
 # FIXME TODO OLD OUTDATED 
-function emit_error()
-{
-send debug "$@"
-cat
-return 1
-}
-# FIXME TODO OLD OUTDATED 
 function emit_progress()
 {
         percent=$1
@@ -76,22 +69,22 @@ function handle_mountpoint_demands()
 		Filesystem)
 			if [ -n "$FORMAT_FS" -a "$FORMAT_FS" != "$VAL" ]; then
 				echo "ERROR: Filesystem on $PART ($POINT) has to be formatted with $VAL!" \
-				| emit_error 1
+				| send_error 1
 				return 1
 			elif [ -z "$FORMAT_FS" -a "$(get_filesystem "$PART")" != "$VAL" ]; then
 				echo "ERROR: Filesystem on $PART ($POINT) is not $VAL!" \
-				| emit_error 1
+				| send_error 1
 				return 1
 			fi
 			;;
 		Type)
 			if [ -n "$FORMAT_FS" -a "$(get_filesystem_type -fs "$FORMAT_FS")" != "$VAL" ]; then
 				echo "ERROR: Filesystem on $PART ($POINT) has to be formatted with a $VAL-Filesystem!" \
-				| emit_error 1
+				| send_error 1
 				return 1
 			elif [ -z "$FORMAT_FS" -a "$(get_filesystem_type "$PART")" != "$VAL" ]; then
 				echo "ERROR: Filesystem on $PART ($POINT) is not a $VAL-Filesystem!" \
-				| emit_error 1
+				| send_error 1
 				return 1
 			fi
 			;;
@@ -99,7 +92,7 @@ function handle_mountpoint_demands()
 			not=not
 			lvdisplay $PART &>/dev/null; A=$?
 			[ "$VAL" = "yes" ] && unset not; B=$?
-			((A*B)) || ! ((A-B)) || ( echo ERROR: $PART "($POINT)" must $not be on a LVM-device! | emit_error 1; return 1 ) || return 1
+			((A*B)) || ! ((A-B)) || ( echo ERROR: $PART "($POINT)" must $not be on a LVM-device! | send_error 1; return 1 ) || return 1
 			;;
 		esac
 		shift
@@ -157,14 +150,14 @@ function check_partitions_for_install()
 		
                 if [ "$device" = "$isosrc_dev" ]; then
                     if [ "$filesystem" ]; then
-                        emit_error 1 "Partition $device ($mountpoint) is mounted to /isosrc... This partition cannot be formatted!"
+                        send_error 1 "Partition $device ($mountpoint) is mounted to /isosrc... This partition cannot be formatted!"
                         return 1
                     fi
                 fi
 		
 		# take care of the mountpoint demands
 		if part_demands="$(mointpoint_demands | egrep "^$mountpoint:" 2>/dev/null)"; then
-			[ "$automount" = "auto" ] || emit_error 1 "Partition $device ($mountpoint) doesn't have the automount-flag set!" || return 1
+			[ "$automount" = "auto" ] || send_error 1 "Partition $device ($mountpoint) doesn't have the automount-flag set!" || return 1
 			eval handle_mountpoint_demands \"$device\" \"$filesystem\" $part_demands
 		fi
 		
@@ -174,14 +167,14 @@ function check_partitions_for_install()
 		partition_size_min=$[mp_min*1024*1024*115/100] # + 15% Filesystem overhead
 		partition_size="$(blockdev --getsize64 $device)" # actual size of device (in bytes)
 		if [ "$partition_size" -lt "$partition_size_min" ]; then
-			emit_error 1 "Partition $device ($mountpoint) is too small! it is $[partition_size/1024/1024] MB big, but it should be at least $[partition_size_min/1024/1024+10] MB big"
+			send_error 1 "Partition $device ($mountpoint) is too small! it is $[partition_size/1024/1024] MB big, but it should be at least $[partition_size_min/1024/1024+10] MB big"
 			return 1
 		fi
 		progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
 	done <<<"$cfg_hdmap"
 	
 	if [ -z "$found_root" ]; then
-		echo "No root-partition selected!" | emit_error 1
+		send_error 1 "No root-partition selected!"
 	fi
 }
 
@@ -296,7 +289,7 @@ function prepare_partitions_for_install()
 			if [ $RC -ne 0 ]; then
 				ERROR_MESSAGES=$(tail -8 $TMP)
 				echo "$ERROR_MESSAGES"
-				emit_error 1 "mkfs failed" || return 1
+				send_error 1 "mkfs failed" || return 1
 			fi
 	
 			# Deactivate dir_index-feature of ext2/ext3/ext4-partitions
@@ -325,12 +318,12 @@ function prepare_partitions_for_install()
 					fi
 					;;
 				*)
-					emit_error 1 "mount failed: $EC" || return 1
+					send_error 1 "mount failed: $EC" || return 1
 					;;
 				esac
 			fi
 			if ! awk '/^\/dev/{if($4 ~ /^rw/){print $1}}' /proc/mounts | grep -qw $device; then
-				emit_error 1 "mount failed: $EC" || return 1
+				send_error 1 "mount failed: $EC" || return 1
 			fi
 		fi
 		

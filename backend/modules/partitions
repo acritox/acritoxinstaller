@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Synopsis: strip_live_media
+#
+# This function strips the live media (usbstick) from a list of devices
+# Output example:
+#   /dev/sda
+function strip_live_media()
+{
+	grep -ve '^$' $(awk '{if($2=="/live/image" && $3=="iso9660"){gsub(/[0-9]*$/,"",$1); print "-e ^"$1; exit 0;}}' < /proc/mounts)
+}
+
 # Synopsis: list_all_disks
 #
 # This function lists all disks
@@ -8,7 +18,9 @@
 #   /dev/sdb
 function list_all_disks()
 {
+    (
 	awk -vli="$(awk '{if($2=="sd") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if($1==list[i]&&$2%16==0) print "/dev/"$4;}' /proc/partitions
+    ) | strip_live_media
 }
 
 # Synopsis: send_list_of_disks
@@ -34,8 +46,10 @@ function send_list_of_disks()
 #   /dev/md0
 function list_all_partitions()
 {
+    (
 	awk -vli="$(awk '{if($2=="sd") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if($1==list[i]&&$2%16!=0) print "/dev/"$4;}' /proc/partitions
 	awk -vli="$(awk '{if($2=="md") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if($1==list[i]) print "/dev/"$4;}' /proc/partitions
+    ) | strip_live_media
 }
 
 # Synopsis: list_dm_partitions

@@ -10,11 +10,11 @@ function send()
 function send_error()
 {
 	if [ "$#" -gt 1 ]; then
-		send error "$@" >&2
+		send error "$@"
 	elif [ "$#" -eq 1 ]; then
-		send error "$1" "$(tr -d '\n')" >&2
+		send error "$1" "$(tr -d '\n')"
 	else
-		send error 255 unknown >&2
+		send error 255 unknown
 	fi
 	return 1
 }

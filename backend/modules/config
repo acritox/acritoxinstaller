@@ -42,7 +42,7 @@ function flag_unset()
 
 function hdmap_set()
 {
-	cfg_set hdmap "$( ( echo "$@"; ( echo "$@"; echo "$cfg_hdmap" ) | sort -u -t: -k1,1 ) | sort -u -t: -k2,2 | grep .)"
+	cfg_set hdmap "$( ( ( echo "$@"; ( echo "$@"; echo "$cfg_hdmap" ) | sort -u -t: -k1,1 ) | sort -u -t: -k2,2; awk -F: '{print $1":::"}' <<<"$@" ) | sort -u -t: -k1,1 | grep .)"
 }
 
 # Synopsis: hdmap_get <"device"|"mountpoint"|"filesystem"|"automount"> of <"device"|"mountpoint"> <device|mountpoint>

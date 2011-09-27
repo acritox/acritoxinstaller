@@ -8,8 +8,11 @@ wpHdMap::wpHdMap(QWidget *parent) : QWizardPage(parent)
   setupUi(this);
   backend = Backend::instance();
   connect(backend, SIGNAL(receivedDataLine(QString,QString)), this, SLOT(receivedDataLine(QString,QString)));
+  connect(backend, SIGNAL(receivedCommand(QString,QString)), this, SLOT(receivedCommand(QString,QString)));
   connect(backend, SIGNAL(finishedCommand(QString)), this, SLOT(backendFinishedCommand(QString)));
   tableWidget->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+
+  checkPassed = false;
 }
 
 void wpHdMap::initializePage()
@@ -39,6 +42,11 @@ void wpHdMap::receivedDataLine(QString data, QString line)
   }
 }
 
+void wpHdMap::receivedCommand(QString command, QString args)
+{
+  if(command == "error") checkPassed = false;
+}
+
 void wpHdMap::backendFinishedCommand(QString command)
 {
   if(command == "fill_hdmap")
@@ -65,6 +73,12 @@ void wpHdMap::backendFinishedCommand(QString command)
       if(hdmap.at(row).section(":",3,3) == "auto") automount->setChecked(true); else automount->setChecked(false);
       tableWidget->setCellWidget(row, 3, automount);
     }
+
+    checkPassed = false;
+  }
+  else if(command == "check_partitions_for_install" && checkPassed)
+  {
+    this->wizard()->next();
   }
 }
 
@@ -82,6 +96,11 @@ bool wpHdMap::isComplete() const
 bool wpHdMap::validatePage()
 {
   if(!isComplete()) return false;
+  if(checkPassed)
+  {
+    checkPassed = false;
+    return true;
+  }
   QStringList* hdmap = new QStringList();
   for(int row = 0; row < tableWidget->rowCount(); row++)
   {
@@ -93,5 +112,7 @@ bool wpHdMap::validatePage()
   }
   backend->cfg("hdmap", hdmap->join("\n"));
 //   backend->exec(QString("hdmap_set %1").arg(hdmap->join("\n")));
-  return true;
+  backend->exec("check_partitions_for_install");
+  checkPassed = true; // if an error occurrs receivedCommand will set it to false.
+  return false;
 }

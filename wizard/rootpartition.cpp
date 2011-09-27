@@ -11,6 +11,8 @@ wpRootPartition::wpRootPartition(QWidget *parent) : QWizardPage(parent)
   connect(backend, SIGNAL(receivedDataLine(QString,QString)), this, SLOT(receivedDataLine(QString,QString)));
   connect(rootPartitionDev, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(updateComplete()));
   connect(chkAdvanced, SIGNAL(stateChanged(int)), this, SLOT(updateComplete()));
+  
+  checkPassed = false;
 }
 
 void wpRootPartition::initializePage()
@@ -24,6 +26,8 @@ void wpRootPartition::clearPage()
   rootPartitionDev->clear();
   backend->exec("send_possible_root_filesystems");
   rootPartitionFs->clear();
+  
+  checkPassed = false;
 }
 
 void wpRootPartition::receivedDataLine(QString data, QString line)
@@ -50,15 +54,38 @@ bool wpRootPartition::isComplete() const
   return true;
 }
 
+void wpRootPartition::backendFinishedCommand(QString command)
+{
+  if(command == "check_partitions_for_install" && checkPassed)
+  {
+    this->wizard()->next();
+  }
+}
+
+void wpRootPartition::receivedCommand(QString command, QString args)
+{
+  if(command == "error") checkPassed = false;
+}
+
 bool wpRootPartition::validatePage()
 {
   if(!isComplete()) return false;
+  if(checkPassed)
+  {
+    checkPassed = false;
+    return true;
+  }
   if(rootPartitionDev->currentItem())
     backend->exec(QString("hdmap_set %1:/:%2:auto")
 	  .arg(rootPartitionDev->currentItem()->text().section(" ",0,0))
 	  .arg(chkFormat->isChecked() ? rootPartitionFs->currentText() : ""));
     backend->exec("fill_hdmap");
-  return true;
+  
+  if(chkAdvanced->isChecked()) return true;
+  
+  backend->exec("check_partitions_for_install");
+  checkPassed = true; // if an error occurrs receivedCommand will set it to false.
+  return false; 
 }
 
 int wpRootPartition::nextId() const

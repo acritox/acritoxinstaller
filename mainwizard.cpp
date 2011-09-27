@@ -80,6 +80,12 @@ void MainWizard::processCommand(QString command, QString args)
 	break;
       }
   }
+  else if(command == "error")
+  {
+    backendBusy(false);
+    QMessageBox::critical(0, tr("Backend Error"), tr("An error occurred:\n\n%1").arg(args)); 
+    backendBusy(true);
+  }
 }
 
 QSize MainWizard::sizeHint() const

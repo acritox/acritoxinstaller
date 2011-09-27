@@ -30,6 +30,7 @@ void wpSummary::initializePage()
     QString automount = line.section(":",3,3);
     QString title = tr("%1 will be used as %2").arg(device).arg(mountpoint);
     QString description;
+    if(!mountpoint.length()) continue;
     if(filesystem.length()) description = QString("<li>") + tr("It will be formatted with %1").arg(filesystem) + QString("</li>");
     if(automount == "auto") description += QString("<li>") + tr("It will be mounted automatically on boot") + QString("</li>");
     listWidget->addItem(new ListItem(title, "<ul>" + description + "</ul>", "drive-harddisk"));

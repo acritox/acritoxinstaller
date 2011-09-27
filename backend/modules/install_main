@@ -38,7 +38,11 @@ EOF
 
 	while IFS=: read device mountpoint filesystem automount
 	do
-		[ -z "$mountpoint" ] && continue
+		if [ -z "$mountpoint" ]; then
+                        # update progress
+                        progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
+                        continue
+                fi
 
 		fstab_options=""; fstab_dump=0; fstab_pass=2; fstab_type=""
 		[ -z "$fstab_type" ] && fstab_type=$filesystem

@@ -103,11 +103,11 @@ function check_partitions_for_install()
 	unset found_root
 	local progress_steps=$(( $(wc -l <<<"$cfg_hdmap") * 2 + 1))
 	local progress=0
-        progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
         # compute partition_min_table
         local partition_min_table_=$ESTIMATED_ROOT_MIN
         while IFS=: read device mountpoint filesystem automount
         do
+            progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
             case "$mountpoint" in
             "") continue;;
             /) continue;;
@@ -128,13 +128,17 @@ function check_partitions_for_install()
             done
             var_mp="$(echo "$mountpoint" | sed 's/[^a-zA-Z0-9]/_/g')"
             eval local partition_min_table$var_mp=$MP_MIN
-            progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
         done <<<"$cfg_hdmap"
 
+        progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
         isosrc_dev="$(awk '{if($2 == "/isosrc"){print $1}}' /proc/mounts)"
 	while IFS=: read device mountpoint filesystem automount
 	do
-		[ -z "$mountpoint" ] && continue;
+		if [ -z "$mountpoint" ]; then
+                        # update progress
+                        progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
+                        continue
+                fi
 		
 		# set flag if there is a root-partition in the hd_map
 		[ "$mountpoint" = / ] && found_root=1
@@ -253,6 +257,8 @@ function prepare_partitions_for_install()
 	local progress=0
 	while IFS=: read device mountpoint filesystem automount
 	do	
+                [ -z "$mountpoint" ] && continue
+
 		[ "$1" != "--nomount" ] && umount_all_affected $device
 		
 		# format device with filesystem (if specified)

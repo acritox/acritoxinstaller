@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.16) unstable; urgency=low
+
+  * ignore devices with empty mountpoints in summary
+  * progress corrections
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Wed, 28 Sep 2011 02:41:42 +0200
+
 acritoxinstaller (0.2.15) unstable; urgency=low
 
   * reordered old code

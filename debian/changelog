@@ -1,3 +1,9 @@
+acritoxinstaller (0.2.17) unstable; urgency=low
+
+  * fixed order of hdmap in prepare_partitions
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Wed, 28 Sep 2011 21:24:26 +0200
+
 acritoxinstaller (0.2.16) unstable; urgency=low
 
   * ignore devices with empty mountpoints in summary

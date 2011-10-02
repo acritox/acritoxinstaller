@@ -5,3 +5,7 @@ include /usr/share/cdbs/1/class/cmake.mk
 
 
 # Add here any variable or target overrides you need.
+
+binary-post-install/acritoxinstaller-kanotix::
+	perl -pi -e 's/\@VERSION\@/$(DEB_VERSION)/g' debian/$(@:binary-post-install/%=%)/usr/share/acritoxinstaller/html/*.html
+

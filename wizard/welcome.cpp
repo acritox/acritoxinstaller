@@ -1,5 +1,6 @@
 #include <QtGui>
 #include "welcome.h"
+#include "config.h"
 #include "../listdelegate.h"
 #include "../listitem.h"
 
@@ -9,6 +10,7 @@ wpWelcome::wpWelcome(QWidget *parent) : QWizardPage(parent)
   backend = Backend::instance();
   connect(backend, SIGNAL(finishedCommand(QString)), this, SLOT(backendFinishedCommand(QString)));
   setComplete(false);
+  textBrowser->setSource(QString("%1/html/%2.html").arg(BACKEND_DIR).arg(tr("welcome")));
   backend->exec("init_installer");
 }
 

@@ -1,3 +1,15 @@
+acritoxinstaller (0.2.18) trialshot; urgency=low
+
+  * added HTML welcome page
+  * added installation timer
+  * added titles, descriptions and icons to the installation progress list
+  * use ListItems with formatted size info in frontend
+  * recommend gparted instead of cfdisk
+  * fix estimated min size when using gfxoverlay
+  * remove kde-config-touchpad if no touchpad is available
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Mon, 03 Oct 2011 01:30:21 +0200
+
 acritoxinstaller (0.2.17) unstable; urgency=low
 
   * fixed order of hdmap in prepare_partitions

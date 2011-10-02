@@ -35,7 +35,7 @@ void wpPartManSel::receivedDataLine(QString data, QString line)
     if(app == "cfdisk")
     {
       title = tr("cfdisk");
-      desc = tr("cfdisk is a curses-based partition editor. It is text-only (curses), but it is easy to use [recommended]");
+      desc = tr("cfdisk is a curses-based partition editor. It is text-only (curses), but it is easy to use.");
       icon = "terminal";
     }
     else if(app == "fdisk")
@@ -47,7 +47,7 @@ void wpPartManSel::receivedDataLine(QString data, QString line)
     else if(app == "gparted")
     {
       title = tr("GParted");
-      desc = tr("GParted is the Gnome Partition Editor application. It has a Graphical User Interface.");
+      desc = tr("GParted is the Gnome Partition Editor application. It has a Graphical User Interface. [recommended]");
       icon = "gparted";
     }
     else if(app == "qtparted")

@@ -17,7 +17,7 @@ function run_partmgr()
 function send_partition_managers()
 {
 	send data partition_managers
-        for app in cfdisk gparted qtparted fdisk
+        for app in gparted qtparted fdisk cfdisk
         do
                 which $app &>/dev/null || continue
 		echo $app

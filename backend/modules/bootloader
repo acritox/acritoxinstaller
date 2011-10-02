@@ -4,14 +4,14 @@
 #
 # This function lists all disks and the root-partition if it is suitable to install a bootloader on it.
 # Output example:
-#   /dev/sda:MBR:250059350016
-#   /dev/sdb:MBR:400088457216
-#   /dev/sdb1:Rootpartition:60003385344
+#   /dev/sda 250059350016 Master Boot Record
+#   /dev/sdb 400088457216 Master Boot Record
+#   /dev/sdb1 60003385344 Rootpartition (filesysem ext4)
 function list_bootloader_targets()
 {
         for disk in $(list_all_disks)
         do
-                echo "$disk - MBR $(blockdev --getsize64 $disk)"
+                echo "$disk $(blockdev --getsize64 $disk) Master Boot Record"
         done
 	root_dev="$(hdmap_get device of mountpoint /)"
 	root_fs="$(hdmap_get filesystem of mountpoint /)"
@@ -19,7 +19,7 @@ function list_bootloader_targets()
         case $root_fs in
         reiserfs|ext2|ext3|ext4)
                 list_linux_partitions | grep -q "^$root_dev$" &&
-                echo "$root_dev - Rootpartition $(blockdev --getsize64 $root_dev)"
+                echo "$root_dev $(blockdev --getsize64 $root_dev) Rootpartition (filesystem $root_fs)"
                 ;;
         esac
 }

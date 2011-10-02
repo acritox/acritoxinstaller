@@ -11,6 +11,7 @@ wpPartManSel::wpPartManSel(QWidget *parent) : QWizardPage(parent)
   connect(partMan, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(updateComplete()));
   connect(partDisk, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(updateComplete()));
   partMan->setItemDelegate(new ListDelegate(this));
+  partDisk->setItemDelegate(new ListDelegate(this));
 }
 
 void wpPartManSel::initializePage()
@@ -67,7 +68,10 @@ void wpPartManSel::receivedDataLine(QString data, QString line)
   }
   if(data == "list_of_disks")
   {
-    QListWidgetItem *item = new QListWidgetItem(QIcon::fromTheme("drive-harddisk"), line);
+    QString dev = line.section(" ",0,0);
+    qlonglong size = line.section(" ",1,1).toLongLong();
+    QString desc = QString("%1 (%L2)").arg(backend->sizeToString(size)).arg(size);
+    QListWidgetItem *item = new ListItem(dev, desc, "drive-harddisk", dev);
     partDisk->addItem(item);
   }
 }
@@ -88,6 +92,6 @@ bool wpPartManSel::validatePage()
 {
   if(!isComplete()) return false;
   backend->cfg("partman_program", partMan->currentItem()->data(ListItem::ItemData).toString());
-  backend->cfg("partman_disk", partDisk->currentItem()->text().section(" ",0,0));
+  backend->cfg("partman_disk", partDisk->currentItem()->data(ListItem::ItemData).toString());
   return true;
 }

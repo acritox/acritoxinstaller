@@ -93,7 +93,7 @@ function partitions_size_details()
         while read part x
 	do
 		[ -e "$part" ] || continue
-		echo "$part $(blockdev --getsize64 "$part")"
+		echo "$part $(blockdev --getsize64 "$part") $x"
         done
 }
 
@@ -229,15 +229,15 @@ function list_possible_root_partitions()
 
 # Synopsis: send_possible_root_partitions
 #
-# This script sends a list of all possible root-partitions with size-details to the frontend.
+# This script sends a list of all possible root-partitions with size- and usage-details to the frontend.
 # Output example:
 #   <installer data> possible_root_partitions
-#   /dev/sda4 10001908224
-#   /dev/sdb1 64023257088
+#   /dev/sda4 10001908224 filesystem ext3
+#   /dev/sdb1 64023257088 
 function send_possible_root_partitions()
 {
 	send data possible_root_partitions
-	list_possible_root_partitions | partitions_size_details
+	list_possible_root_partitions | partitions_usage_details | partitions_size_details
 }
 
 # Synopsis: send_possible_root_filesystems

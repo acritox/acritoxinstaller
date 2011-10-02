@@ -19,6 +19,7 @@ public:
     void exitBackend();
     QString encryptPassword(QString password);
     QString cleanUsername(const QString &username);
+    QString sizeToString(qlonglong size);
     bool isBusy();
     bool flag(QString flag);
     void flag(QString flag, bool set);

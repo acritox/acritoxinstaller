@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QTime>
 #include <stdlib.h>
+#include <math.h>
 #include "config.h"
 
 Backend* Backend::_instance;
@@ -229,6 +230,19 @@ QString Backend::cleanUsername(const QString &username)
   }
   
   return result.replace(QRegExp("[^a-zA-Z0-9-_.]"), "");
+}
+
+QString Backend::sizeToString(qlonglong size)
+{
+  float fSize = size;
+  int i = 0;
+  const char* units[] = {"B", "kB", "MB", "GB", "TB"};
+  while (fSize > 1024) {
+    fSize /= 1024.0;
+    i++;
+  }
+  fSize = round((fSize)*100)/100;
+  return QString::number(fSize)+" "+ units[i];
 }
 
 void Backend::slotProcessExited()

@@ -13,6 +13,7 @@ wpRootPartition::wpRootPartition(QWidget *parent) : QWizardPage(parent)
   connect(backend, SIGNAL(finishedCommand(QString)), this, SLOT(backendFinishedCommand(QString)));
   connect(rootPartitionDev, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(updateComplete()));
   connect(chkAdvanced, SIGNAL(stateChanged(int)), this, SLOT(updateComplete()));
+  rootPartitionDev->setItemDelegate(new ListDelegate(this));
   
   checkPassed = false;
 }
@@ -36,7 +37,11 @@ void wpRootPartition::receivedDataLine(QString data, QString line)
 {
   if(data == "possible_root_partitions")
   {
-    QListWidgetItem *item = new QListWidgetItem(QIcon::fromTheme("drive-harddisk"), line);
+    QString dev = line.section(" ",0,0);
+    qlonglong size = line.section(" ",1,1).toLongLong();
+    QString desc = QString("%1 (%L2)").arg(backend->sizeToString(size)).arg(size);
+    desc += "<br />" + line.section(" ",2);
+    QListWidgetItem *item = new ListItem(dev, desc, "drive-harddisk", dev);
     rootPartitionDev->addItem(item);
   }
   if(data == "possible_root_filesystems")
@@ -83,7 +88,7 @@ bool wpRootPartition::validatePage()
   }
   if(rootPartitionDev->currentItem())
     backend->exec(QString("hdmap_set %1:/:%2:auto")
-	  .arg(rootPartitionDev->currentItem()->text().section(" ",0,0))
+	  .arg(rootPartitionDev->currentItem()->data(ListItem::ItemData).toString())
 	  .arg(chkFormat->isChecked() ? rootPartitionFs->currentText() : ""));
     backend->exec("fill_hdmap");
   

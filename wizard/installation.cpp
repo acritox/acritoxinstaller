@@ -23,6 +23,7 @@ void wpInstallation::initializePage()
   connect(backend, SIGNAL(receivedCommand(QString,QString)), this, SLOT(receivedCommand(QString,QString)));
   connect(backend, SIGNAL(finishedCommand(QString)), this, SLOT(finishedCommand(QString)));
   backend->exec("do_install");
+  timer.start();
 }
 
 void wpInstallation::cleanupPage()
@@ -127,6 +128,11 @@ void wpInstallation::finishedCommand(QString command)
   progressCompleted->setValue(100);
   progressCurrent->setRange(0,100);
   progressCurrent->setValue(100);
+  int elapsed = timer.elapsed()/1000;
+  QString desc = tr("The installation took %1m%2s.").arg(elapsed/60).arg(elapsed % 60, 2, QLatin1Char('0'));
+  QListWidgetItem *item = new ListItem(tr("Finished."), desc, "dialog-ok-apply");
+  listWidget->addItem(item);
+  listWidget->scrollToItem(item);
   setComplete(true);
 }
 

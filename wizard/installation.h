@@ -1,6 +1,7 @@
 #ifndef installation_H
 #define installation_H
 
+#include <QTime>
 #include "ui_installation.h"
 #include "../backend.h"
 
@@ -19,6 +20,7 @@ class wpInstallation : public QWizardPage, Ui::wpInstallation
     Backend* backend;
     bool complete;
     void setComplete(bool c);
+    QTime timer;
     
   private slots:
     void setProgress(int percent);

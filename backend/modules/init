@@ -25,6 +25,9 @@ function init_installer()
 	if [ ! -d /live/filesystem/usr ]; then
 		[ "$LOOPDEV" ] && mount -o ro "$LOOPDEV" /live/filesystem
 	fi
+        ESTIMATED_ROOT_MIN=$(df -m "$LOOPDEV" | tail -1 | gawk '{print $3}')
+        grep -q squashfs /proc/mounts && ESTIMATED_ROOT_MIN=$(($ESTIMATED_ROOT_MIN*270/100))
+        export ESTIMATED_ROOT_MIN
 	cfg_set hostname "${FLL_DISTRO_NAME}Box"
 }
 

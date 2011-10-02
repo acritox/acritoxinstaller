@@ -30,16 +30,6 @@ function is_disk()
     return 1
 }
 
-# Synopsis: calculate_min_space
-#
-# This function estimates the minimum space needed for a hdinstall
-function calculate_min_space()
-{
-    ESTIMATED_ROOT_MIN=$(df -m "/live/filesystem" | tail -1 | gawk '{print $3}')
-    grep -q squashfs /proc/mounts && ESTIMATED_ROOT_MIN=$(($ESTIMATED_ROOT_MIN*270/100))
-    export ESTIMATED_ROOT_MIN
-}
-
 # Synopsis: handle_mountpoint_demands <device>
 #
 # This function handles the demands of the mountpoints (data from function mountpoint_demands)

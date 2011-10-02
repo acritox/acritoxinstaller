@@ -44,7 +44,6 @@ function copy_system_to_target()
 {
 	send install_step copy_system_to_target
 	emit_progress 0
-	calculate_min_space
 	orig_size="$ESTIMATED_ROOT_MIN"
 	dest_size_before=$(di -dm -fSMu | gawk '/\/live\/hdinstall/{used+=int($3)} END{print int(used)}')
 	dest_size_diff=0

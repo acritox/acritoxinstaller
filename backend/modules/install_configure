@@ -133,7 +133,7 @@ function configure_target_purge_live_only_stuff()
 			tftpd-hpa 	&> /dev/null
 
         # remove kde-config-touchpad if no touchpad is available
-        [ "$(qdbus org.kde.synaptiks /modules/synaptiks org.kde.Synaptiks.isTouchpadAvailable)" = true ] && \
+        [ "$(su "$FLL_LIVE_USER" -c "qdbus org.kde.synaptiks /modules/synaptiks org.kde.Synaptiks.isTouchpadAvailable")" = true ] && \
                 chroot_it dpkg --purge kde-config-touchpad
 	
 	#  disable live config

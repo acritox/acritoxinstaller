@@ -33,11 +33,26 @@ set(acritoxinstaller_SRCS mainwizard.cpp main.cpp backend.cpp listitem.cpp listd
 set(acritoxinstaller_MOC_HDRS mainwizard.h backend.h listdelegate.h ${wizard_HDRS})
 set(acritoxinstaller_UIS ${wizard_UIS})
 
+set(FILES_TO_TRANSLATE ${acritoxinstaller_SRCS} ${acritoxinstaller_MOC_HDRS} ${acritoxinstaller_UIS})
+file (GLOB TRANSLATIONS_FILES translations/*.ts)
+
 qt4_wrap_cpp(acritoxinstaller_MOC_SRCS ${acritoxinstaller_MOC_HDRS})
 qt4_wrap_ui(acritoxinstaller_UIS_H ${acritoxinstaller_UIS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_executable(acritoxinstaller ${acritoxinstaller_SRCS} ${acritoxinstaller_MOC_SRCS} ${acritoxinstaller_UIS_H})
 target_link_libraries(acritoxinstaller ${QT_LIBRARIES} qtermwidget crypt)
+
+option (UPDATE_TRANSLATIONS "Update source translation translations/*.ts
+files (WARNING: make clean will delete the source .ts files! Danger!)")
+if (UPDATE_TRANSLATIONS)
+  qt4_create_translation(QM_FILES ${FILES_TO_TRANSLATE}
+${TRANSLATIONS_FILES})
+else (UPDATE_TRANSLATIONS)
+  qt4_add_translation(QM_FILES ${TRANSLATIONS_FILES})
+endif (UPDATE_TRANSLATIONS) 
+add_custom_target (translations_target DEPENDS ${QM_FILES})
+install(FILES ${QM_FILES} DESTINATION ${QT_TRANSLATIONS_DIR})
+add_dependencies(acritoxinstaller translations_target)
 
 install(TARGETS acritoxinstaller RUNTIME DESTINATION "${BIN_INSTALL_DIR}" LIBRARY DESTINATION "${LIB_INSTALL_DIR}")
 

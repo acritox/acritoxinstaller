@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.20) trialshot; urgency=low
+
+  * added german welcome page
+  * added german translation, translated by Maximilian Gerhard <maxbox@directbox.com>
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Mon, 03 Oct 2011 23:05:05 +0200
+
 acritoxinstaller (0.2.19) trialshot; urgency=low
 
   * fixed typo

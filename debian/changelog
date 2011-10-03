@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.19) trialshot; urgency=low
+
+  * fixed typo
+  * call qdbus as $FLL_LIVE_USER
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Mon, 03 Oct 2011 10:44:32 +0200
+
 acritoxinstaller (0.2.18) trialshot; urgency=low
 
   * added HTML welcome page

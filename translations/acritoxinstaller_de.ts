@@ -733,7 +733,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../wizard/welcome.cpp" line="13"/>
         <source>welcome</source>
-        <translation>willommen</translation>
+        <translation>willkommen</translation>
     </message>
 </context>
 </TS>

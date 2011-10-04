@@ -40,6 +40,7 @@ void wpRootPwd::updateStatus()
   }
   else
   {
+    passwordStatus->setToolTip(tr("Password OK"));
     passwordStatus->setPixmap(QIcon::fromTheme("dialog-ok").pixmap(24,24));
     
     if(pw1 != pw2)
@@ -49,6 +50,7 @@ void wpRootPwd::updateStatus()
       complete = false;
     }
     else
+      retypePasswordStatus->setToolTip(tr("Password OK"));
       retypePasswordStatus->setPixmap(QIcon::fromTheme("dialog-ok").pixmap(24,24));
   }
   

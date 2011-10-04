@@ -724,7 +724,13 @@ p, li { white-space: pre-wrap; }
         <translation>Passwörter müssen mindestens 6 Zeichen lang sein!</translation>
     </message>
     <message>
-        <location filename="../wizard/userpwd.cpp" line="47"/>
+        <location filename="../wizard/userpwd.cpp" line="43"/>
+        <location filename="../wizard/userpwd.cpp" line="53"/>
+        <source>Password OK</source>
+        <translation>Passwort OK</translation>
+    </message>
+    <message>
+        <location filename="../wizard/userpwd.cpp" line="48"/>
         <source>Passwords don&apos;t match!</source>
         <translation>Passwörter stimmen nicht überein!</translation>
     </message>

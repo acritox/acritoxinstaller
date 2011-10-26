@@ -1,3 +1,13 @@
+acritoxinstaller (0.2.21) trialshot; urgency=low
+
+  * live-media-path fix
+  * Fixed typo on username wizard page
+  * Fixed user pw indicator tooltips
+  * Fixed typo on user pw wizard page
+  * Fixed root pw indicator tooltips
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Wed, 26 Oct 2011 18:23:30 +0200
+
 acritoxinstaller (0.2.20) trialshot; urgency=low
 
   * added german welcome page

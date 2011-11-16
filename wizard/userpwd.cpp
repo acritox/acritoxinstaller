@@ -50,8 +50,10 @@ void wpUserPwd::updateStatus()
       complete = false;
     }
     else
+    {
       retypePasswordStatus->setToolTip(tr("Password OK"));
       retypePasswordStatus->setPixmap(QIcon::fromTheme("dialog-ok").pixmap(24,24));
+    }
   }
   emit completeChanged();
 }

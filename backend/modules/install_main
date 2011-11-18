@@ -308,5 +308,8 @@ function copy_etc_to_target()
 		sed '/<!-- .* user in live session -->/d; s/user="'"$FLL_LIVE_USER"'"/user="'"$cfg_username"'"/;' \
 		< /etc/PolicyKit/PolicyKit.conf > $TARGET/etc/PolicyKit/PolicyKit.conf
 	fi
+
+        # Firmware
+	rsync -Ha --ignore-existing /lib/firmware/ $TARGET/lib/firmware/
 }
 

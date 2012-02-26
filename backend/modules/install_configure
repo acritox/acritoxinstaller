@@ -152,5 +152,15 @@ function configure_target_purge_live_only_stuff()
 
 	# remove kdm live shutdown hack
 	rm -f "$TARGET/home/$cfg_username/.kde/shutdown/kdm-force-shutdown-hack"
+
+        # remove live-only hooks
+        rm -vf $TARGET/usr/bin/isohybrid-bg2 \
+               $TARGET/usr/share/initramfs-tools/hooks/pcidetect \
+               $TARGET/usr/share/initramfs-tools/scripts/init-top/pcidetect \
+               $TARGET/usr/share/initramfs-tools/scripts/live-bottom/01gfxoverlay \
+               $TARGET/usr/share/initramfs-tools/scripts/live-bottom/02blacklist \
+               $TARGET/usr/share/initramfs-tools/scripts/live-bottom/03rpmfirmware
+        rm -rvf $TARGET/lib/live
+        rm -vf $TARGET/etc/profile.d/zz-live.sh
 }
 

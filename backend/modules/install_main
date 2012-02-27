@@ -273,6 +273,7 @@ function copy_etc_to_target()
 	# create locales
 	chroot_it locale-gen &>/dev/null
 	chroot_it dpkg-reconfigure -fnoninteractive keyboard-configuration &>/dev/null
+	chroot_it dpkg-reconfigure -fnoninteractive console-setup &>/dev/null
 
 	# nvidia autoinstall trigger
 	chroot_it update-rc.d -f kanotix remove &>/dev/null

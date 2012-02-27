@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.23) trialshot; urgency=low
+
+  * reconfigure console-setup on target
+  * remove live-only hooks on installation target
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Mon, 27 Feb 2012 13:48:37 +0100
+
 acritoxinstaller (0.2.22) trialshot; urgency=low
 
   * copy live firmware to installation target

@@ -98,6 +98,9 @@ EOF
 	[ -f /etc/sysconfig/keyboard ] && . /etc/sysconfig/keyboard
 
 	[ -n "$KEYTABLE" ] && chroot_it install-keymap "$KEYTABLE" 2>/dev/null
+
+        # remove live-repo from sources.list
+        sed -i -e '/^# Live Media$/{N;\|\ndeb file:/live/image/debian |{N;/\n$/d}}' $TARGET/etc/apt/sources.list
 }
 
 # Synopsis: configure_target_purge_live_only_stuff

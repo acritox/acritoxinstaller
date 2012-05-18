@@ -1,3 +1,9 @@
+acritoxinstaller (0.2.25) trialshot; urgency=low
+
+  * remove enable_persistent script, mdadm raid support
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Fri, 18 May 2012 02:28:15 +0200
+
 acritoxinstaller (0.2.24) trialshot; urgency=low
 
   * remove live-repo from sources.list

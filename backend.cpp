@@ -9,7 +9,7 @@ Backend* Backend::_instance;
 
 Backend::Backend()
 {
-  qDebug("Backend::Backend() called!");
+  qDebug() << "Backend::Backend() called!";
   _process = new QProcess();
   
   QTime time = QTime::currentTime();
@@ -85,7 +85,7 @@ void Backend::cfg(QString var, QString value)
 
 void Backend::exec(QString command)
 {
-  qDebug("Backend::exec(\""+command.toAscii()+"\") called!");
+  qDebug() << "Backend::exec(\"" << command.toAscii() << "\") called!";
   commandQueue.enqueue(command);
   dequeue();
 }
@@ -104,14 +104,14 @@ void Backend::dequeue()
 
 void Backend::exitBackend()
 {
-  qDebug("Backend::exitBackend() called!");
+  qDebug() << "Backend::exitBackend() called!";
   _process->kill();
   _process->waitForFinished();
 }
 
 void Backend::processOutput(QString line)
 {
-  qDebug("Backend: input: "+line.toAscii());
+  qDebug() << "Backend: input:" << line.toAscii();
   if(line.startsWith("<acritoxinstaller "))
   {
     QString command = line.section(" ",1,1).section(">",0,0);
@@ -119,7 +119,7 @@ void Backend::processOutput(QString line)
     if(command == "prompt")
     {
       busy = false;
-      qDebug("Backend: finished: "+currentCommand.toAscii());
+      qDebug() << "Backend: finished:" << currentCommand.toAscii();
       emit finishedCommand(currentCommand);
       dequeue();
     }
@@ -152,7 +152,7 @@ void Backend::processOutput(QString line)
   {
     data[currentData].append(line);
     emit receivedDataLine(currentData, line.trimmed());
-    qDebug("Backend: data: "+line.toAscii());
+    qDebug() << "Backend: data:" << line.toAscii();
   }
 }
 

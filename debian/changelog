@@ -1,4 +1,4 @@
-acritoxinstaller (0.2.25) trialshot; urgency=low
+acritoxinstaller (0.2.25) dragonfire; urgency=low
 
   * remove enable_persistent script, mdadm raid support
 

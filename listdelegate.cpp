@@ -55,9 +55,9 @@ void ListDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 		doc.setUseDesignMetrics(true);
 		doc.setHtml("<p>"+description+"</p>");
 		QRectF rect = QRectF(QPoint(0,0),doc.size());
-		painter->translate(74,20+QFontMetrics::QFontMetrics(f).height());
+		painter->translate(74,20+QFontMetrics(f).height());
 		doc.drawContents(painter, rect);
-		painter->translate(-74,-20-QFontMetrics::QFontMetrics(f).height());
+		painter->translate(-74,-20-QFontMetrics(f).height());
 
 	painter->restore();
 }
@@ -72,6 +72,6 @@ QSize ListDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
   doc.setTextWidth(option.rect.width()-79);
   doc.setUseDesignMetrics(true);
   doc.setHtml("<p>"+description+"</p>");
-  return QSize(option.rect.width()-10,std::max(69, int(25+QFontMetrics::QFontMetrics(f).height()+doc.size().height())));
+  return QSize(option.rect.width()-10,std::max(69, int(25+QFontMetrics(f).height()+doc.size().height())));
 }
 

@@ -56,7 +56,7 @@ void MainWizard::reject()
 
 void MainWizard::backendBusy(bool busy)
 {
-  qDebug((QString("MainWizard::backendBusy: ")+(busy ? "yes" : "no")).toUtf8());
+  qDebug() << "MainWizard::backendBusy:" << (busy ? "yes" : "no");
   if(!busy)
   {
     QApplication::restoreOverrideCursor();

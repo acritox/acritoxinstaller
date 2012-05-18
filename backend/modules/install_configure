@@ -131,6 +131,7 @@ function configure_target_purge_live_only_stuff()
 			live-manual-pdf \
 			live-manual-txt \
 			live-manual \
+			gfxoverlay \
 			mknbi \
 			syslinux \
 			tftpd-hpa 	&> /dev/null
@@ -157,14 +158,9 @@ function configure_target_purge_live_only_stuff()
 	rm -f "$TARGET/home/$cfg_username/.kde/shutdown/kdm-force-shutdown-hack"
 
         # remove live-only hooks
-        rm -vf $TARGET/usr/bin/isohybrid-bg2 \
-               $TARGET/usr/share/initramfs-tools/hooks/pcidetect \
-               $TARGET/usr/share/initramfs-tools/scripts/init-top/pcidetect \
-               $TARGET/usr/share/initramfs-tools/scripts/live-bottom/01gfxoverlay \
-               $TARGET/usr/share/initramfs-tools/scripts/live-bottom/02blacklist \
-               $TARGET/usr/share/initramfs-tools/scripts/live-bottom/03rpmfirmware
-        rm -rvf $TARGET/lib/live
-        rm -vf $TARGET/etc/profile.d/zz-live.sh
-        rm -vf $TARGET/usr/local/bin/enable_persistent_live.bash
+        rm -rf $TARGET/lib/live
+        rm -f $TARGET/etc/profile.d/zz-live.sh
+        rm -f $TARGET/usr/local/bin/enable_persistent_live.bash
+	rm -f "$TARGET/home/$cfg_username/Desktop/enable_persistent.desktop"
 }
 

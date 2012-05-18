@@ -165,5 +165,6 @@ function configure_target_purge_live_only_stuff()
                $TARGET/usr/share/initramfs-tools/scripts/live-bottom/03rpmfirmware
         rm -rvf $TARGET/lib/live
         rm -vf $TARGET/etc/profile.d/zz-live.sh
+        rm -vf $TARGET/usr/local/bin/enable_persistent_live.bash
 }
 

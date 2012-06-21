@@ -60,7 +60,7 @@ function get_root()
 				which $as_root &>/dev/null && break
 			done
 		fi
-		$as_root "$p" --pid $$ "${O_ARGS[@]}" &>/dev/null
+		$as_root -- "$p" --pid $$ "${O_ARGS[@]}" &>/dev/null
 		exit $?
 	fi
 }

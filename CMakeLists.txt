@@ -29,8 +29,8 @@ file(GLOB wizard_HDRS wizard/[a-z]*.h)
 file(GLOB wizard_UIS  wizard/[a-z]*.ui)
 
 configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-set(acritoxinstaller_SRCS mainwizard.cpp main.cpp backend.cpp listitem.cpp listdelegate.cpp busyappfilter.cpp ${wizard_SRCS})
-set(acritoxinstaller_MOC_HDRS mainwizard.h backend.h listdelegate.h ${wizard_HDRS})
+set(acritoxinstaller_SRCS mainwizard.cpp lxdesupport.cpp main.cpp backend.cpp listitem.cpp listdelegate.cpp busyappfilter.cpp ${wizard_SRCS})
+set(acritoxinstaller_MOC_HDRS mainwizard.h lxdesupport.cpp backend.h listdelegate.h ${wizard_HDRS})
 set(acritoxinstaller_UIS ${wizard_UIS})
 
 set(FILES_TO_TRANSLATE ${acritoxinstaller_SRCS} ${acritoxinstaller_MOC_HDRS} ${acritoxinstaller_UIS})

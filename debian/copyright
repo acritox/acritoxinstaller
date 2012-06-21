@@ -32,3 +32,10 @@ libqtermwidget is written by:
 and is licensed under the GPL version 2,
 see "/usr/share/common-licenses/GPL-2".
 
+lxdesupport.{cpp,h} were written by:
+
+    Ilya Kotov <forkotov02@hotmail.ru>
+
+and is licensed under the GPL,
+see "/usr/share/common-licenses/GPL".
+

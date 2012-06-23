@@ -37,13 +37,13 @@ void wpPartManSel::receivedDataLine(QString data, QString line)
     {
       title = tr("cfdisk");
       desc = tr("cfdisk is a curses-based partition editor. It is text-only (curses), but it is easy to use.");
-      icon = "terminal";
+      icon = "utilities-terminal";
     }
     else if(app == "fdisk")
     {
       title = tr("fdisk");
       desc = tr("fdisk is a classic partition table manipulator for Linux. It has a Command Line Interface.");
-      icon = "terminal";
+      icon = "utilities-terminal";
     }
     else if(app == "gparted")
     {

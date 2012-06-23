@@ -49,7 +49,7 @@ void wpInstallation::receivedCommand(QString command, QString args)
   else if(args == "prepare_target")
   {
     title = tr("Setting up the installation target...");
-    icon = "configure";
+    icon = "applications-system";
   }
   else if(args == "prepare_partitions_for_install")
   {

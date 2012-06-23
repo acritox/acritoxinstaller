@@ -1,3 +1,11 @@
+acritoxinstaller (0.2.27) dragonfire; urgency=low
+
+  * added support for gdm3 autologin
+  * better QSettings usage to find correct config
+  * first icon replacements to use more default icons
+
+ -- Maximilian Gerhard <maxbox@directbox.com>  Sat, 23 Jun 2012 23:29:15 +0200
+
 acritoxinstaller (0.2.26) dragonfire; urgency=low
 
   * changed install target of .desktop file to /usr/share/applications

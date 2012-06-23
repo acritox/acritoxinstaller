@@ -301,6 +301,14 @@ function copy_etc_to_target()
 		perl -pi -e "s|^[#\s]*(AutoLoginEnable).*|\1=$autologin|"  $kdmrc
 	fi
 
+	# GDM3: auto login
+	[ -f $TARGET/etc/gdm3/daemon.conf ] && daemoncfg=$TARGET/etc/gdm3/daemon.conf
+	if [ -e $daemoncfg ]; then
+		perl -pi -e "s|^[#\s]*(AutomaticLogin)\s*=.*|\1=$cfg_username|"  $daemoncfg
+		[ "$cfg_autologin" = "on" ] && autologin="true" || autologin="false"
+		perl -pi -e "s|^[#\s]*(AutomaticLoginEnable)\s*=.*|\1=$autologin|"  $daemoncfg
+	fi
+
 	# Crypto
 	cp -a /etc/crypttab $TARGET/etc/crypttab
 

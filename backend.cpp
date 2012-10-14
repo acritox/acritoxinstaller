@@ -3,6 +3,7 @@
 #include <QTime>
 #include <stdlib.h>
 #include <math.h>
+#include <crypt.h>
 #include "config.h"
 
 Backend* Backend::_instance;

@@ -8,6 +8,7 @@ function mointpoint_demands()
 cat <<"EOT"
 /: Type:Linux
 /boot: LVM:no Type:Linux
+/boot/efi: LVM:no Type:DOS
 /bin: Type:Linux
 /etc: Type:Linux
 /home: Type:Linux
@@ -333,18 +334,14 @@ function fill_hdmap()
                                 echo "$part:/media/$(basename "$part")::auto"
                         fi
                 done
-                for part in $(list_linux_partitions)
-                do
-                        if is_removeable "$part" && [ "$(get_disk "$part")" != "$root_disk" ]; then
-                                echo "$part:::"
-                        else
-                                echo "$part:/media/$(basename "$part")::auto"
-                        fi
-                done
-                for part in $(list_dm_partitions)
-                do
-			echo "$part:::"
-		done
+                #for part in $(list_linux_partitions)
+                #do
+                #        if is_removeable "$part" && [ "$(get_disk "$part")" != "$root_disk" ]; then
+                #                echo "$part:::"
+                #        else
+                #                echo "$part:/media/$(basename "$part")::auto"
+                #        fi
+                #done
         ) | sort -u -t: -k1,1)"
 }
 

@@ -40,7 +40,7 @@ function list_bootloaders()
 {
         for bl in burg grub
         do
-                [ -x /usr/sbin/$bl-setup ] || continue
+                [ -x /usr/sbin/$bl-install ] || continue
                 case $bl in
                 burg) echo "BURG - Brand-new Universal loadeR from GRUB";;
                 grub) echo "GRUB - GRand Unified Bootloader";;

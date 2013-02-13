@@ -49,6 +49,7 @@ function list_all_partitions()
     (
 	awk -vli="$(awk '{if($2=="sd") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if($1==list[i]&&$2%16!=0) print "/dev/"$4;}' /proc/partitions
 	awk -vli="$(awk '{if($2=="md") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if($1==list[i]||$1==list[i]+250) print "/dev/"$4;}' /proc/partitions
+	list_dm_partitions
     ) | strip_live_media
 }
 
@@ -131,7 +132,7 @@ function list_partitions()
         while IFS=" " read part usage type
         do
                 if [ "$usage" = "$required_usage" ]; then
-                        [ "$required_type" -a "$required_type" != "$(get_filesystem $part)" ] && continue
+                        [ "$required_type" -a "$required_type" != "$(get_filesystem_type $part)" ] && continue
                         [ "$required_disk" ] && ! echo "$part" | grep -q "^$required_disk" && continue
                         echo $part
                 fi
@@ -141,34 +142,40 @@ function list_partitions()
 
 # Synopsis: list_linux_partitions
 #
-# This function lists all partitions from the disks (by list_all_disks) which have partition Id 0x83 (= Linux)
+# This function lists all partitions from the disks (by list_all_disks) which have partition Id 0x83 (= Linux) and Linux Filesystem
 # Output example:
 #   /dev/sda4
 #   /dev/sdb1
+#   /dev/mapper/xyz
 function list_linux_partitions()
 {
     (
-    for disk in $(list_all_disks)
-    do
-        LC_ALL=C sfdisk -l "$disk" 2>/dev/null | sed 's/[*+]//g;' | gawk '/^\/dev/{if($6 == 83){print $1}}'
-    done
+    #for disk in $(list_all_disks)
+    #do
+    #    LC_ALL=C sfdisk -l "$disk" 2>/dev/null | sed 's/[*+]//g;' | gawk '/^\/dev/{if($6 == 83){print $1}}'
+    #done
     for part in $(list_all_partitions)
     do
         case "$(blkid -p -s PART_ENTRY_TYPE -o value "$part")" in
             0x83|ebd0a0a2-b9e5-4433-87c0-68b6b72699c7)
-                echo "$part"
+                [ "$(get_filesystem_type $part)" = "Linux" ] && echo "$part"
                 ;;
         esac
+    done
+    for part in $(list_dm_partitions) $(awk -vli="$(awk '{if($2=="md") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if(($1==list[i]&&$2%16==0)||($1==list[i]&&$2==126)) print "/dev/"$4;}' /proc/partitions)
+    do
+        [ "$(get_filesystem_type "$part")" = "Linux" ] && echo "$part"
     done
     ) | sort -u
 }
 
 # Synopsis: list_swap_partitions
 #
-# This function lists all partitions from the disks (by list_all_disks) which have partition Id 0x82 (= Linux swap)
+# This function lists all partitions or lvm from the disks (by list_all_disks) which have partition Id 0x82 (= Linux swap)
 # Output example:
 #   /dev/sda4
 #   /dev/sdb1
+#   /dev/mapper/xyz
 function list_swap_partitions()
 {
     (
@@ -183,6 +190,10 @@ function list_swap_partitions()
                 echo "$part"
                 ;;
         esac
+    done
+    for part in $(list_dm_partitions)
+    do
+        [ "$(get_filesystem_type "$part")" = "Swap" ] && echo "$part"
     done
     ) | sort -u
 }
@@ -218,13 +229,14 @@ function is_removeable()
 # Synopsis: list_possible_root_partitions
 #
 # This script lists all possible root-partitions.
-#   * all linux-partitions and all partitions that have a linux-filesystem
+#   * all linux-partitions or lvm which have a linux-filesystem
 # Output example:
 #   /dev/sda4
 #   /dev/sdb1
+#   /dev/mapper/xyz
 function list_possible_root_partitions()
 {
-	( list_linux_partitions; list_partitions -type Linux ) | sort -u
+	( list_linux_partitions; list_partitions -type Linux ) | sort | uniq -d
 }
 
 # Synopsis: send_possible_root_partitions
@@ -286,7 +298,8 @@ function get_filesystem_type()
         case $filesystem in
         ext4|ext3|ext2|reiserfs|xfs|minix|hfs|efs|reiser4|jfs|btrfs) echo Linux;;
         iso9660) echo CD-ROM;;
-        vfat|ntfs) echo Windows;;
+        vfat) echo DOS;;
+        ntfs) echo Windows;;
         swap) echo Swap;;
         *) echo "$filesystem";;
         esac

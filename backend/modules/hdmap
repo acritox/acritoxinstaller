@@ -291,9 +291,10 @@ function prepare_partitions_for_install()
 		mkdir -p ${TARGET}${mountpoint} # make sure mountpoint exists
 		
 		# only mount the partition if: 1. it has the automount flag
-		#                              2. the mountpoint exists on the Live system
-		#                          and 3. prepare_partitions_for_install was not called with "--nomount"
-		if [ "$automount" = "auto" -a "$1" != "--nomount" -a -d "/live/filesystem$mountpoint" ]; then
+		#                              2. prepare_partitions_for_install was not called with "--nomount"
+		#                          and 3. the mountpoint exists on the Live system
+		#                          (or 4. the mountpoint is a special one that always should be mounted [/boot/efi])
+		if [ "$automount" = "auto" -a "$1" != "--nomount" ] && [ -d "/live/filesystem$mountpoint" -o "$mountpoint" = "/boot/efi" ]; then
 			# mount device to mountpoint
 			EC="$(LC_ALL=C mount $device ${TARGET}${mountpoint} 2>&1)"
 			if (($?)); then

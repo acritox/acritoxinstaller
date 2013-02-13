@@ -115,7 +115,7 @@ EOF
 		
 		# update progress
 		progress=$[progress+1]; emit_progress $[100*progress/progress_steps]
-	done <<<"$cfg_hdmap"
+	done < <(sort -t: -k2,2 <<<"$cfg_hdmap")
 
 	# Add swap to /etc/fstab
 	while read device

@@ -308,6 +308,13 @@ function copy_etc_to_target()
 		[ "$cfg_autologin" = "on" ] && autologin="true" || autologin="false"
 		perl -pi -e "s|^[#\s]*(AutomaticLoginEnable)\s*=.*|\1=$autologin|"  $daemoncfg
 	fi
+    
+    # LightDM: auto login
+    if [ -e $TARGET/etc/lightdm/lightdm.conf ]; then
+        sed -i -r -e "s|^#.*autologin-user=.*\$|autologin-user=$cfg_username|" \
+            -e "s|^#.*autologin-user-timeout=.*\$|autologin-user-timeout=0|" \
+        $TARGET/etc/lightdm/lightdm.conf
+    fi
 
 	# Crypto
 	cp -a /etc/crypttab $TARGET/etc/crypttab

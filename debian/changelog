@@ -1,3 +1,9 @@
+acritoxinstaller (0.2.28) dragonfire; urgency=low
+
+  * next development version 0.2.28
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Wed, 13 Feb 2013 21:47:41 +0100
+
 acritoxinstaller (0.2.27) dragonfire; urgency=low
 
   * added support for gdm3 autologin

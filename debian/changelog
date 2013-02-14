@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.31) dragonfire; urgency=low
+
+  * updated squashfs compression level for estimating needed space
+  * fixed LXDE auto login
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Thu, 14 Feb 2013 12:15:25 +0100
+
 acritoxinstaller (0.2.30) dragonfire; urgency=low
 
   * fixed GDM3 auto login

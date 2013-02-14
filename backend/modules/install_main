@@ -310,8 +310,9 @@ function copy_etc_to_target()
     
     # LightDM: auto login
     if [ -e $TARGET/etc/lightdm/lightdm.conf ]; then
-        sed -i -r -e "s|^#.*autologin-user=.*\$|autologin-user=$cfg_username|" \
-            -e "s|^#.*autologin-user-timeout=.*\$|autologin-user-timeout=0|" \
+		[ "$cfg_autologin" = "on" ] && autologin="" || autologin="#"
+        sed -i -r -e "s|^#.*autologin-user=.*\$|${autologin}autologin-user=$cfg_username|" \
+            -e "s|^#.*autologin-user-timeout=.*\$|${autologin}autologin-user-timeout=0|" \
         $TARGET/etc/lightdm/lightdm.conf
     fi
 

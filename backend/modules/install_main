@@ -302,11 +302,10 @@ function copy_etc_to_target()
 	fi
 
 	# GDM3: auto login
-	[ -f $TARGET/etc/gdm3/daemon.conf ] && daemoncfg=$TARGET/etc/gdm3/daemon.conf
-	if [ -e $daemoncfg ]; then
-		perl -pi -e "s|^[#\s]*(AutomaticLogin)\s*=.*|\1=$cfg_username|"  $daemoncfg
+	if [ -e $TARGET/etc/gdm3/daemon.conf ]; then
+		perl -pi -e "s|^[#\s]*(AutomaticLogin)\s*=.*|\1=$cfg_username|"  $TARGET/etc/gdm3/daemon.conf
 		[ "$cfg_autologin" = "on" ] && autologin="true" || autologin="false"
-		perl -pi -e "s|^[#\s]*(AutomaticLoginEnable)\s*=.*|\1=$autologin|"  $daemoncfg
+		perl -pi -e "s|^[#\s]*(AutomaticLoginEnable)\s*=.*|\1=$autologin|"  $TARGET/etc/gdm3/daemon.conf
 	fi
     
     # LightDM: auto login

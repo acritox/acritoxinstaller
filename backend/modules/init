@@ -6,6 +6,7 @@ function init_installer()
 	export FLL_DISTRO_MODE FLL_DISTRO_NAME FLL_LIVE_USER
 	mkdir -p /live/filesystem
 	LOOPDEV="$(losetup --all | awk -F: '/\/live\/image\//&&/filesystem/{print $1}')"
+    [ -z "$LOOPDEV" ] && LOOPDEV=$(losetup --all | awk -F: '/\/live\/medium\//&&/filesystem/{print $1}')
 	if [ -e /live/gfxoverlay.active ]; then
 		mkdir -p /live/filesystem.main
 		gfx="$(cat /live/gfxoverlay.active)"

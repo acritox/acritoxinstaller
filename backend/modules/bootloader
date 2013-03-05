@@ -97,6 +97,9 @@ function install_grub()
     
     write_kernel_img_conf
 
+    # gfx=auto hack
+    grep -q gfx=auto /proc/cmdline && chroot_it sed -i 's/\(^GRUB_CMDLINE_LINUX_DEFAULT=\).*/\1"quiet rw gfx=auto"/;s/\(^GRUB_CMDLINE_LINUX=\).*/\1""/' /etc/default/grub
+
     # update grub
     chroot_it update-grub &>/dev/null
     DEBIAN_FRONTEND=noninteractive chroot_it dpkg-reconfigure grub-pc &>/dev/null

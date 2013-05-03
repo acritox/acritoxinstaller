@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.32) dragonfire; urgency=low
+
+  * gfx=auto hack
+  * hotfix for live-boot 3.0
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Fri, 03 May 2013 16:55:28 +0200
+
 acritoxinstaller (0.2.31) dragonfire; urgency=low
 
   * updated squashfs compression level for estimating needed space

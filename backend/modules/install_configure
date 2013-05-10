@@ -132,9 +132,7 @@ function configure_target_purge_live_only_stuff()
 			live-manual-txt \
 			live-manual \
 			gfxoverlay \
-			mknbi \
-			syslinux \
-			tftpd-hpa 	&> /dev/null
+			zram	 	&> /dev/null
 
         # remove kde-config-touchpad if no touchpad is available
         [ "$(su "$FLL_LIVE_USER" -c "qdbus org.kde.synaptiks /modules/synaptiks org.kde.Synaptiks.isTouchpadAvailable")" = true ] && \

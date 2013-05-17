@@ -1,3 +1,9 @@
+acritoxinstaller (0.2.33) dragonfire; urgency=low
+
+  * remove zram after install
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Fri, 17 May 2013 14:30:12 +0200
+
 acritoxinstaller (0.2.32) dragonfire; urgency=low
 
   * gfx=auto hack

@@ -182,7 +182,9 @@ function update_passwd_on_target()
     for group in lpadmin scanner; do
             chroot $TARGET addgroup --system $group >/dev/null 2>&1
     done
-    for group in adm audio cdrom dialout floppy video plugdev dip lpadmin lp scanner powerdev netdev; do
+    LIVE_USER_DEFAULT_GROUPS="audio cdrom dip floppy lp video plugdev netdev powerdev scanner bluetooth debian-tor fuse vboxusers"
+    [ -r /etc/live/config.conf ] && . /etc/live/config.conf
+    for group in $LIVE_USER_DEFAULT_GROUPS; do
             chroot $TARGET adduser --force-badname "$cfg_username" $group >/dev/null 2>&1
     done
 }

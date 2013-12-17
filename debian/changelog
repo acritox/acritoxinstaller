@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.34) dragonfire; urgency=low
+
+  * modified default user-groups
+  * do not create own groups
+
+ -- Holger Paradies <retabell@gmx.de>  Tue, 17 Dec 2013 20:00:36 +0100
+
 acritoxinstaller (0.2.33) dragonfire; urgency=low
 
   * remove zram after install

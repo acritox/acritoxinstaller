@@ -179,9 +179,6 @@ function update_passwd_on_target()
 
     chroot $TARGET sh -c "usermod --password '$cfg_userpwd' '$cfg_username'"
 
-    for group in lpadmin scanner; do
-            chroot $TARGET addgroup --system $group >/dev/null 2>&1
-    done
     LIVE_USER_DEFAULT_GROUPS="audio cdrom dip floppy lp video plugdev netdev powerdev scanner bluetooth debian-tor fuse vboxusers"
     [ -r /etc/live/config.conf ] && . /etc/live/config.conf
     for group in $LIVE_USER_DEFAULT_GROUPS; do

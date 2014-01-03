@@ -1,3 +1,9 @@
+acritoxinstaller (0.2.35) dragonfire; urgency=low
+
+  * allow Linux filesystem data GUID
+
+ -- Joerg Schirottke <master@kanotix.com>  Fri, 03 Jan 2014 13:37:56 +0100
+
 acritoxinstaller (0.2.34) dragonfire; urgency=low
 
   * modified default user-groups

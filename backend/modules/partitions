@@ -157,7 +157,7 @@ function list_linux_partitions()
     for part in $(list_all_partitions)
     do
         case "$(blkid -p -s PART_ENTRY_TYPE -o value "$part")" in
-            0x83|ebd0a0a2-b9e5-4433-87c0-68b6b72699c7)
+            0x83|ebd0a0a2-b9e5-4433-87c0-68b6b72699c7|0fc63daf-8483-4772-8e79-3d69d8477de4)
                 [ "$(get_filesystem_type $part)" = "Linux" ] && echo "$part"
                 ;;
         esac

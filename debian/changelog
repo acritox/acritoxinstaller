@@ -1,3 +1,9 @@
+acritoxinstaller (0.2.36) dragonfire; urgency=low
+
+  * copy extra sources.list.d entries
+
+ -- Holger Paradies <retabell@gmx.de>  Sun, 02 Feb 2014 10:49:05 +0100
+
 acritoxinstaller (0.2.35) dragonfire; urgency=low
 
   * allow Linux filesystem data GUID

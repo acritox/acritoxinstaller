@@ -85,6 +85,9 @@ EOF
 			[ "$(stat --format "%G" $device)" = "floppy" ] && fstab_pass=0
 		fi
 		
+		# skip mounting failed or unavailable partitions when booting
+		fstab_options="${fstab_options},nofail"
+
 		fstab_options="${fstab_options##defaults,}"
 		
 		unset DEV UUID

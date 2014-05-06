@@ -169,6 +169,24 @@ function list_linux_partitions()
     ) | sort -u
 }
 
+# Synopsis: list_efi_partitions
+#
+# This function lists all partitions from the disks (by list_all_disks) which have partition Id 0xef (= EFI) and DOS filesystem
+# Output example:
+#   /dev/sda1
+#   /dev/sdb1
+function list_linux_partitions()
+{
+    for part in $(list_all_partitions)
+    do
+        case "$(blkid -p -s PART_ENTRY_TYPE -o value "$part")" in
+            0xef|c12a7328-f81f-11d2-ba4b-00a0c93ec93b)
+                [ "$(get_filesystem_type $part)" = "DOS" ] && echo "$part"
+                ;;
+        esac
+    done
+}
+
 # Synopsis: list_swap_partitions
 #
 # This function lists all partitions or lvm from the disks (by list_all_disks) which have partition Id 0x82 (= Linux swap)

@@ -261,6 +261,7 @@ function copy_etc_to_target()
 		cat /etc/default/rcS > $TARGET/etc/default/rcS
 	fi
 	
+	cp -a /etc/adjtime $TARGET/etc/adjtime
 	cp -a /etc/timezone $TARGET/etc/timezone
 	cp -a /etc/localtime $TARGET/etc/localtime
 	cp -a /etc/default/keyboard $TARGET/etc/default/keyboard

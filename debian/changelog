@@ -1,3 +1,11 @@
+acritoxinstaller (0.2.37) dragonfire; urgency=low
+
+  * nofail fstab option
+  * copy /etc/adjtime to installation target
+  * added /boot/efi detection for hdmap
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Thu, 08 May 2014 11:39:03 +0200
+
 acritoxinstaller (0.2.36) dragonfire; urgency=low
 
   * copy extra sources.list.d entries

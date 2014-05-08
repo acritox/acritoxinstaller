@@ -7,7 +7,7 @@
 #   /dev/sda
 function strip_live_media()
 {
-	grep -ve '^$' $(awk '{if($2=="/live/image" && $3=="iso9660"){gsub(/[0-9]*$/,"",$1); print "-e ^"$1; exit 0;}}' < /proc/mounts)
+	grep -ve '^$' $(awk '{if(($2=="/live/image" || $2=="/lib/live/mount/medium") && $3=="iso9660"){gsub(/[0-9]*$/,"",$1); print "-e ^"$1; exit 0;}}' < /proc/mounts)
 }
 
 # Synopsis: list_all_disks
@@ -175,13 +175,31 @@ function list_linux_partitions()
 # Output example:
 #   /dev/sda1
 #   /dev/sdb1
-function list_linux_partitions()
+function list_efi_partitions()
 {
-    for part in $(list_all_partitions)
+    root_disk="$(get_disk "$(hdmap_get device of mountpoint /)")"
+    for part in $(list_all_partitions | strip_live_media)
     do
         case "$(blkid -p -s PART_ENTRY_TYPE -o value "$part")" in
             0xef|c12a7328-f81f-11d2-ba4b-00a0c93ec93b)
                 [ "$(get_filesystem_type $part)" = "DOS" ] && echo "$part"
+                ;;
+            *)
+                disk="$(get_disk "$part")"
+                if [ "$disk" = "$root_disk" ] && \
+                   [ "$(get_filesystem_type "$part")" = "DOS" ]; then
+                    case "$(blkid -p -s PTTYPE -o value "$disk")" in
+                    gpt)
+                        echo "$part"
+                        ;;
+                    dos)
+                        # only primary MSDOS partitions can be EFI partitions
+                        partnr="${part/$disk}"
+                        partnr="${partnr//[^0-9]}"
+                        [ -n "$partnr" -a "$partnr" -ge 1 -a "$partnr" -le 4 ] && echo "$part"
+                        ;;
+                    esac
+                fi
                 ;;
         esac
     done

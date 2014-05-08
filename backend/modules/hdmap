@@ -327,40 +327,9 @@ function fill_hdmap()
         (
                 echo "$cfg_hdmap"
                 root_disk="$(get_disk "$(hdmap_get device of mountpoint /)")"
-                efi_part="$(hdmap_get device of mountpoint /boot/efi)"
-                for part in $(list_efi_partitions | grep "$root_disk"; list_efi_partitions | grep -v "$root_disk")
-                do
-                        # prefer EFI partition on root disk
-                        if [ -z "$efi_part" ]; then
-                                # preselect the first of the EFI partitions found
-                                echo "$part:/boot/efi::auto"
-                                efi_part="$part"
-                        else
-                                # list other possible EFI partitions in hdmap but don't select them
-                                echo "$part:::"
-                        fi
-                done
                 for part in $(list_partitions -usage filesystem)
                 do
                         disk="$(get_disk "$part")"
-                        if [ -z "$efi_part" ] && [ "$disk" = "$root_disk" ] && \
-                           [ "$(get_filesystem_type $part)" = "DOS" ]; then
-                                case "$(blkid -p -s PTTYPE -o value "$disk")" in
-                                gpt)
-                                        efi_part="$part"
-                                        ;;
-                                dos)
-                                        # only primary MSDOS partitions can be EFI partitions
-                                        partnr="${part/$disk}"
-                                        partnr="${partnr//[^0-9]}"
-                                        [ -n "$partnr" -a "$partnr" -ge 1 -a "$partnr" -le 4 ] && efi_part="$part"
-                                        ;;
-                                esac
-                                if [ "$efi_part" ]; then
-                                        echo "$efi_part:/boot/efi::auto"
-                                        continue
-                                fi
-                        fi
                         if is_removeable "$part" && [ "$disk" != "$root_disk" ]; then
                                 echo "$part:::"
                         else

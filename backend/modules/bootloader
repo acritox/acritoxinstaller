@@ -9,6 +9,13 @@
 #   /dev/sdb1 60003385344 Rootpartition (filesysem ext4)
 function list_bootloader_targets()
 {
+    if [ -d /sys/firmware/efi ]; then
+        root_disk="$(get_disk "$(hdmap_get device of mountpoint /)")"
+        for efi_part in $(list_efi_partitions | grep "$root_disk"; list_efi_partitions | grep -v "$root_disk")
+        do
+            echo "$efi_part $(blockdev --getsize64 $efi_part) EFI partition"
+        done
+    else
         for disk in $(list_all_disks)
         do
                 echo "$disk $(blockdev --getsize64 $disk) Master Boot Record"
@@ -22,6 +29,7 @@ function list_bootloader_targets()
                 echo "$root_dev $(blockdev --getsize64 $root_dev) Rootpartition (filesystem $root_fs)"
                 ;;
         esac
+    fi
 }
 
 function send_bootloader_targets()
@@ -74,26 +82,32 @@ function install_grub()
 {
     rm -f $TARGET/boot/vmlinuz $TARGET/boot/System.map $TARGET/boot/initrd.img
 
+    apple=0
+    # TODO Apple detection, e.g. using dmidecode
+    false && apple=1
+
     # install grub
     mkdir -p "$TARGET/boot/grub"
-    grub-install --recheck --no-floppy --root-directory=$TARGET "$cfg_bootloader_target" &>/dev/null || \
-    grub-install --force --recheck --no-floppy --root-directory=$TARGET "$cfg_bootloader_target" &>/dev/null
+    if [ -d /sys/firmware/efi ]; then
+        if is_removeable "$cfg_bootloader_target" && [ "$apple" = 1 ]; then
+            chroot_it grub-install --removeable &>/dev/null
+        else
+            chroot_it grub-install &>/dev/null
+        fi
+    else
+        grub-install --recheck --no-floppy --root-directory=$TARGET "$cfg_bootloader_target" &>/dev/null || \
+        grub-install --force --recheck --no-floppy --root-directory=$TARGET "$cfg_bootloader_target" &>/dev/null
 
-#    # create device.map and save it to target
-#    export device_map=$TARGET/tmp/device.map
-#    get_device_map > $device_map
-#    cat $device_map > $TARGET/boot/grub/device.map
-#    rm -f $device_map
-
-    # preseed grub-pc with install-target
-    for path in /dev/disk/by-id/*
-    do
-    	[ -e "$path" ] || continue
-    	if [ "$(readlink -f "$path")" = "$(readlink -f "$cfg_bootloader_target")" ]; then
-            echo "grub-pc grub-pc/install_devices multiselect $path" | chroot_it debconf-set-selections &>/dev/null
-	    break
-	fi
-    done
+        # preseed grub-pc with install-target
+        for path in /dev/disk/by-id/*
+        do
+            [ -e "$path" ] || continue
+            if [ "$(readlink -f "$path")" = "$(readlink -f "$cfg_bootloader_target")" ]; then
+                echo "grub-pc grub-pc/install_devices multiselect $path" | chroot_it debconf-set-selections &>/dev/null
+            break
+        fi
+        done
+    fi
     
     write_kernel_img_conf
 

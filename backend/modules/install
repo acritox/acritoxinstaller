@@ -24,6 +24,14 @@ function prepare_target()
 	send install_step prepare_target
 	mkdir -p /live/hdinstall
 	export TARGET=/live/hdinstall
+
+    # add EFI bootloader target to hdmap
+    if [ -d /sys/firmware/efi ]; then
+        efi_part="$(get_disk "$cfg_bootloader_target")"
+        if [ "$efi_part" ]; then
+            hdmap_set "$efi_part:/boot/efi::auto"
+        fi
+    fi
 }
 
 # Synopsis: chroot_it <...>

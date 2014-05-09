@@ -27,7 +27,7 @@ function prepare_target()
 
     # add EFI bootloader target to hdmap
     if [ -d /sys/firmware/efi ]; then
-        efi_part="$(get_disk "$cfg_bootloader_target")"
+        efi_part="$cfg_bootloader_target"
         if [ "$efi_part" ]; then
             hdmap_set "$efi_part:/boot/efi::auto"
         fi

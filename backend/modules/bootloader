@@ -83,8 +83,7 @@ function install_grub()
     rm -f $TARGET/boot/vmlinuz $TARGET/boot/System.map $TARGET/boot/initrd.img
 
     apple=0
-    # TODO Apple detection, e.g. using dmidecode
-    false && apple=1
+    dmidecode -s system-manufacturer | grep -q "Apple Inc." && apple=1
 
     # install grub
     mkdir -p "$TARGET/boot/grub"

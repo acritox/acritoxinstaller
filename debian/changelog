@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.38) dragonfire; urgency=low
+
+  * Apple detection
+  * grub EFI
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Fri, 09 May 2014 13:58:06 +0200
+
 acritoxinstaller (0.2.37) dragonfire; urgency=low
 
   * nofail fstab option

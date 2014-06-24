@@ -246,15 +246,23 @@ function prepare_partitions_for_install()
 	emit_progress 0
         local progress_steps=$(( $(wc -l <<<"$cfg_hdmap") ))
 	local progress=0
+    local mountoptions=""
 	while IFS=: read device mountpoint filesystem automount
 	do	
                 [ -z "$mountpoint" ] && continue
 
 		[ "$1" != "--nomount" ] && umount_all_affected $device
-		
+	    
+        mountoptions=""
+        if [ "$filesystem" = "btrfs-lzo" ]; then
+            filesystem="btrfs"
+            mountoptions="-o compress=lzo"
+        fi
+
 		# format device with filesystem (if specified)
 		if [ "$filesystem" ]; then
 			
+            wipefs -a $device # clean all old signatures
 			dd if=/dev/zero of=$device bs=1k count=16 >/dev/null 2>/dev/null # shutup! :-)
 			
 			TMP=/tmp/mkfs.$$
@@ -296,7 +304,7 @@ function prepare_partitions_for_install()
 		#                          (or 4. the mountpoint is a special one that always should be mounted [/boot/efi])
 		if [ "$automount" = "auto" -a "$1" != "--nomount" ] && [ -d "/live/filesystem$mountpoint" -o "$mountpoint" = "/boot/efi" ]; then
 			# mount device to mountpoint
-			EC="$(LC_ALL=C mount $device ${TARGET}${mountpoint} 2>&1)"
+			EC="$(LC_ALL=C mount $mountoptions $device ${TARGET}${mountpoint} 2>&1)"
 			if (($?)); then
 				case "$EC" in
 				"*already mounted*") # then let's try "mount --bind"

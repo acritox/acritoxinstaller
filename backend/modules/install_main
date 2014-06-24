@@ -66,10 +66,15 @@ EOF
 		if [ "$mountpoint" = "/" ]; then
 			fstab_pass=1
 			case $fstab_type in
-                        btrfs)
+            btrfs)
 				fstab_options="defaults"
-                                fstab_pass=0
-                                ;;
+                fstab_pass=0
+                ;;
+            btrfs-lzo)
+                fstab_options="defaults,compress=lzo"
+                fstab_pass=0
+                fstab_type="btrfs"
+                ;;
 			reiser*|xfs|jfs)
 				fstab_options="defaults"
 				;;

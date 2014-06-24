@@ -299,7 +299,7 @@ function send_possible_root_partitions()
 function send_possible_root_filesystems()
 {
 	send data possible_root_filesystems
-	for fs in ext4 ext3 reiserfs btrfs xfs jfs; do echo $fs; done
+	for fs in ext4 ext3 reiserfs btrfs btrfs-lzo xfs jfs; do echo $fs; done
 }
 
 # Synopsis: get_filesystem <device>
@@ -332,7 +332,7 @@ function get_filesystem_type()
                 filesystem="$(get_filesystem "$1")"
         fi
         case $filesystem in
-        ext4|ext3|ext2|reiserfs|xfs|minix|hfs|efs|reiser4|jfs|btrfs) echo Linux;;
+        ext4|ext3|ext2|reiserfs|xfs|minix|hfs|efs|reiser4|jfs|btrfs*) echo Linux;;
         iso9660) echo CD-ROM;;
         vfat) echo DOS;;
         ntfs) echo Windows;;

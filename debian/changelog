@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.39) dragonfire; urgency=low
+
+  * btrfs-fixes-and-lzo-support
+  * remove live-config-systemd in install target
+
+ -- Holger Paradies <retabell@gmx.de>  Wed, 10 Sep 2014 23:13:21 +0200
+
 acritoxinstaller (0.2.38) dragonfire; urgency=low
 
   * Apple detection

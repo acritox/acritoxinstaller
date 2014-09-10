@@ -123,6 +123,7 @@ function configure_target_purge_live_only_stuff()
 			live-config-runit \
 			live-config-sysvinit \
 			live-config-upstart \
+			live-config-systemd \
 			live-config \
 			live-magic \
 			live-manual-epub \

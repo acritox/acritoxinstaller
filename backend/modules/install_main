@@ -276,6 +276,7 @@ function copy_etc_to_target()
 	cp -a /etc/default/locale $TARGET/etc/default/locale
 	cp -a /etc/locale.gen $TARGET/etc/locale.gen
 	cp -a /etc/apt/sources.list.d/*.list $TARGET/etc/apt/sources.list.d/
+	cp -a /etc/machine-id $TARGET/etc/machine-id
 	#cp -a /etc/console/* $TARGET/etc/console/
 	#cp -a /etc/environment $TARGET/etc/environment
 	

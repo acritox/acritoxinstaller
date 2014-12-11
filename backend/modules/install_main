@@ -235,6 +235,11 @@ function copy_home_to_target()
 	# revert to plain debian .bashrc
 	cat "$TARGET/etc/skel/.bashrc" > "$TARGET/home/$cfg_username/.bashrc"
 	
+	# akonadi fix
+	rm -rf "$TARGET/home/$cfg_username/.config/akonadi" \
+		"$TARGET/home/$cfg_username/.local/share/akonadi"
+	rm -f "$TARGET/home/$cfg_username/.kde/share/config/akonadi_*"
+
 	# revert kdesu/sudo workaround
 	rm -f "$TARGET/home/$cfg_username/.kde/share/apps/konsole/su.desktop" \
 		"$TARGET/home/$cfg_username/.kde/share/apps/konsole/sumc.desktop" \

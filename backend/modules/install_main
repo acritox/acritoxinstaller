@@ -282,6 +282,19 @@ function copy_etc_to_target()
 	cp -a /etc/locale.gen $TARGET/etc/locale.gen
 	cp -a /etc/apt/sources.list.d/*.list $TARGET/etc/apt/sources.list.d/
 	cp -a /etc/machine-id $TARGET/etc/machine-id
+	if [ -e /etc/default/vdr ]; then
+	    cp -a /etc/default/vdr $TARGET/etc/default/vdr
+	fi
+	if [ -e /etc/default/vdradmin-am ]; then
+	    cp -a /etc/default/vdradmin-am $TARGET/etc/default/vdradmin-am
+	fi
+	if [ -e /var/lib/vdr/channels.conf ]; then
+	    cp -a /var/lib/vdr/channels.conf $TARGET/var/lib/vdr/channels.conf
+	fi
+	if [ -e /var/lib/vdr/setup.conf ]; then
+	    cp -a /var/lib/vdr/setup.conf $TARGET/var/lib/vdr/setup.conf
+	fi
+
 	#cp -a /etc/console/* $TARGET/etc/console/
 	#cp -a /etc/environment $TARGET/etc/environment
 	

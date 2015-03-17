@@ -1,3 +1,9 @@
+acritoxinstaller (0.2.42) spitfire; urgency=low
+
+  * fix grub-install --removable typo
+
+ -- Andreas Loibl <andreas@andreas-loibl.de>  Wed, 18 Mar 2015 00:37:16 +0100
+
 acritoxinstaller (0.2.41) spitfire; urgency=low
 
   * akonadi fix

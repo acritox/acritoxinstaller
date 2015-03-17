@@ -89,7 +89,7 @@ function install_grub()
     mkdir -p "$TARGET/boot/grub"
     if [ -d /sys/firmware/efi ]; then
         if is_removeable "$cfg_bootloader_target" || [ "$apple" = 1 ]; then
-            chroot_it grub-install --removeable &>/dev/null
+            chroot_it grub-install --removable &>/dev/null
         else
             chroot_it grub-install &>/dev/null
         fi

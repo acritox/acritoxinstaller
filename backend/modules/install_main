@@ -235,6 +235,10 @@ function copy_home_to_target()
 	# revert to plain debian .bashrc
 	cat "$TARGET/etc/skel/.bashrc" > "$TARGET/home/$cfg_username/.bashrc"
 	
+	# enable .dmrc
+	if [ -e "/home/$FLL_LIVE_USER/.dmrc" ]; then
+	    cp -a "/home/$FLL_LIVE_USER/.dmrc" "$TARGET/home/$cfg_username/.dmrc"
+	fi
 	# akonadi fix
 	rm -rf "$TARGET/home/$cfg_username/.config/akonadi" \
 		"$TARGET/home/$cfg_username/.local/share/akonadi"

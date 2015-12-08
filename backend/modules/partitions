@@ -19,7 +19,7 @@ function strip_live_media()
 function list_all_disks()
 {
     (
-	awk -vli="$(awk '{if($2=="sd"||$2=="md") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if(($1==list[i]&&$2%16==0)||($1==list[i]&&$2==126)) print "/dev/"$4;}' /proc/partitions
+	awk -vli="$(awk '{if($2=="sd"||$2=="md"||$2=="nvme") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if(($1==list[i]&&$2%16==0)||($1==list[i]&&$2==126||($1==list[i]+8&&$2%16==0))) print "/dev/"$4;}' /proc/partitions
     ) | strip_live_media
 }
 
@@ -49,6 +49,7 @@ function list_all_partitions()
     (
 	awk -vli="$(awk '{if($2=="sd") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if($1==list[i]&&$2%16!=0) print "/dev/"$4;}' /proc/partitions
 	awk -vli="$(awk '{if($2=="md") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if($1==list[i]||$1==list[i]+250) print "/dev/"$4;}' /proc/partitions
+	awk -vli="$(awk '{if($2=="nvme") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if($1==list[i]+8) print "/dev/"$4;}' /proc/partitions
 	list_dm_partitions
     ) | strip_live_media
 }

@@ -85,14 +85,15 @@ EOF
 		elif [ "${mountpoint:0:7}" = "/media/" ]; then
 			# don't run fsck on boot for all /media/* mountpoints
 			fstab_pass=0
+
+			# skip mounting failed or unavailable partitions when booting
+			fstab_options="${fstab_options},nofail"
+
 		else
 			# don't run fsck on boot if device is a removable disk (if group of /dev/XXX == floppy)
 			[ "$(stat --format "%G" $device)" = "floppy" ] && fstab_pass=0
 		fi
 		
-		# skip mounting failed or unavailable partitions when booting
-		fstab_options="${fstab_options},nofail"
-
 		fstab_options="${fstab_options##defaults,}"
 		
 		unset DEV UUID

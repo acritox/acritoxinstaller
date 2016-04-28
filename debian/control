@@ -17,3 +17,8 @@ Architecture: all
 Depends: acritoxinstaller (= ${source:Version})
 Description: AcritoxInstaller for KANOTIX
 
+Package: kanotix-enable-persistent-live
+Architecture: all
+Depends: acritoxinstaller (>= ${source:Version}), zenity | kde-baseapps-bin
+Description: create persistent kanotix usb stick
+ Only useful on live-iso

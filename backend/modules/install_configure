@@ -114,6 +114,7 @@ function configure_target_purge_live_only_stuff()
 			busybox \
 			acritoxinstaller \
 			acritoxinstaller-kanotix \
+			kanotix-enable-persistent-live \
 			live-boot-initramfs-tools \
 			live-boot \
 			live-initramfs \

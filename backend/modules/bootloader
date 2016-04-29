@@ -82,6 +82,15 @@ function install_grub()
 {
     rm -f $TARGET/boot/vmlinuz $TARGET/boot/System.map $TARGET/boot/initrd.img
 
+    # special handling for installs with crypttab - option was changed in some grub versions
+    if grep -q -v -e ^\s*$ -e ^# $TARGET/etc/crypttab; then
+        if grep -q GRUB_CRYPTODISK_ENABLE $TARGET/usr/sbin/grub-install; then
+            echo GRUB_CRYPTODISK_ENABLE=y | tee -a /etc/default/grub >> $TARGET/etc/default/grub
+        elif grep -q GRUB_ENABLE_CRYPTODISK $TARGET/usr/sbin/grub-install; then
+            echo GRUB_ENABLE_CRYPTODISK=y | tee -a /etc/default/grub >> $TARGET/etc/default/grub
+        fi
+    fi
+
     apple=0
     dmidecode -s system-manufacturer | grep -q "Apple Inc." && apple=1
 

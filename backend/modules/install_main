@@ -138,6 +138,7 @@ EOF
 		fi
 		[ -z "$UUID" ] && continue # should never happen...
 		
+		echo "# $device" >> $TARGET/etc/fstab
 		printf "%-15s %-15s %-7s %-15s %-7s %s\n" "UUID=$UUID" "none" "swap" "sw" "0" "0" >> $TARGET/etc/fstab
 	done < <(list_swap_partitions)
 	

@@ -111,7 +111,6 @@ function configure_target_purge_live_only_stuff()
 	send install_step configure_target_purge_live_only_stuff
 	# remove live-only-packages
 	chroot_it dpkg --purge \
-			busybox \
 			acritoxinstaller \
 			acritoxinstaller-kanotix \
 			kanotix-enable-persistent-live \

@@ -1,3 +1,15 @@
+acritoxinstaller (0.2.43) steelfire; urgency=medium
+
+  * do not remove busybox
+  * add mmc partitions
+  * fix: nofail fstab option only for /media mountpoints
+  * add device name for swap partitions
+  * add new package kanotix-enable-persistent-live
+  * added listing of NVME partitions/disks
+  * copy .dmrc and vdr files
+
+ -- Holger Paradies <retabell@gmx.de>  Tue, 30 May 2017 12:51:02 +0200
+
 acritoxinstaller (0.2.42) spitfire; urgency=low
 
   * fix grub-install --removable typo

@@ -7,9 +7,8 @@ function run_partmgr()
 		get_root
 		TERM=xterm /sbin/"$1" "$2"
 		;;
-	gparted|qtparted)
-		get_root X
-		"$1" "$2"
+	gparted)
+		"/usr/sbin/$1" "$2"
 		;;
 	esac
 }

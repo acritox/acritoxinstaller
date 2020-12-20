@@ -25,12 +25,13 @@
 
 void LXDESupport::load()
 {
+    QIcon::setThemeName("acritoxinstaller"); // use kanotix theme
     if(qgetenv("XDG_CURRENT_DESKTOP") != "LXDE")
         return;
 
     QSettings lxde_settings("lxsession/LXDE", "desktop");
     QString themeName = lxde_settings.value("GTK/sNet/IconThemeName").toString();
     if(!themeName.isEmpty())
-        QIcon::setThemeName(themeName);
+        QIcon::setThemeName("acritoxinstaller"); // also use kanotix theme for LXDE
 }
 

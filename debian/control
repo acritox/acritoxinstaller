@@ -14,7 +14,7 @@ Description: AcritoxInstaller
 
 Package: acritoxinstaller-kanotix
 Architecture: all
-Depends: acritoxinstaller (= ${source:Version})
+Depends: acritoxinstaller (= ${source:Version}), acritoxinstaller-icons
 Description: AcritoxInstaller for KANOTIX
 
 Package: kanotix-enable-persistent-live

@@ -7,7 +7,7 @@
 #   /dev/sda
 function strip_live_media()
 {
-	grep -ve '^$' $(awk '{if(($2=="/live/image" || $2=="/lib/live/mount/medium") && $3=="iso9660"){gsub(/[0-9]*$/,"",$1); print "-e ^"$1; exit 0;}}' < /proc/mounts)
+	grep -ve '^$' $(awk '{if(($2=="/live/image" || $2=="/lib/live/mount/medium" || $2=="/run/live/medium") && $3=="iso9660"){gsub(/[0-9]*$/,"",$1); print "-e ^"$1; exit 0;}}' < /proc/mounts)
 }
 
 # Synopsis: list_all_disks

@@ -1,3 +1,15 @@
+acritoxinstaller (0.2.44) silverfire; urgency=medium
+
+  * remarks for UEFI at intro screen
+  * Add new live mount point
+  * Use own icon theme
+  * crypttab install
+  * fix nvme
+  * filter ventoy
+  * fix startup gparted
+
+ -- Holger Paradies <retabell@gmx.de>  Wed, 30 Dec 2020 13:46:21 +0100
+
 acritoxinstaller (0.2.43) steelfire; urgency=medium
 
   * do not remove busybox

@@ -112,6 +112,7 @@ function configure_target_purge_live_only_stuff()
 	# remove live-only-packages
 	chroot_it dpkg --purge \
 			acritoxinstaller \
+			acritoxinstaller-icons \
 			acritoxinstaller-kanotix \
 			kanotix-enable-persistent-live \
 			live-boot-initramfs-tools \
@@ -134,6 +135,9 @@ function configure_target_purge_live_only_stuff()
 			live-manual \
 			gfxoverlay \
 			zram	 	&> /dev/null
+
+	# remove unused stuff
+	chroot_it apt-get autoremove --purge --yes
 
         # remove kde-config-touchpad if no touchpad is available
         [ "$(su "$FLL_LIVE_USER" -c "qdbus org.kde.synaptiks /modules/synaptiks org.kde.Synaptiks.isTouchpadAvailable")" = true ] && \

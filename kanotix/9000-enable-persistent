@@ -14,14 +14,17 @@ Configure_Persistent
 
 Configure_Persistent ()
 {
-if ! [ -x /usr/bin/enable_persistent_live ]
+if ! [ -x /usr/local/bin/enable_persistent_live.bash ]
 then
 	touch /var/lib/live/config/enable-persistent
 	return
 fi
 
-case "$(awk '{if($2=="/live/image"||$2=="/lib/live/mount/medium"){print $1;}}' /proc/mounts)" in
+case "$(awk '{if($2=="/live/image"||$2=="/lib/live/mount/medium"||$2=="/run/live/medium"){print $1;}}' /proc/mounts)" in
 /dev/sd*) 
+	if [ -d "/run/live/persistence" ]; then
+		rm -f /home/${LIVE_USERNAME}/Desktop/enable_persistent.desktop
+	fi
 	case "$( ls /grub.cmdline 2>/dev/null)" in
 	/grub.cmdline)
 		rm -f /home/${LIVE_USERNAME}/Desktop/enable_persistent.desktop
@@ -31,7 +34,7 @@ case "$(awk '{if($2=="/live/image"||$2=="/lib/live/mount/medium"){print $1;}}' /
 [Desktop Entry]
 Comment[de]=Diesen Live-USB-Stick persistent machen, d.h. alle Änderungen werden auf dem Stick gespeichert.
 Comment=Make this Live-USB-Stick persistent, i.e. all changes will be saved to the stick.
-Exec=/usr/bin/enable_persistent_live
+Exec=/usr/local/bin/enable_persistent_live.bash
 Icon=acritoxinstaller
 MimeType=
 Name[de]=»persistent« aktivieren

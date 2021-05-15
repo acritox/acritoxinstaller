@@ -52,7 +52,7 @@ $KDIALOG --warningcontinuecancel "This script automatically configures your Live
 * writes config files to the new partition
 
 ===============================================================
-CURRENT CHANGES ARE NOT STORED, YOU HAVE TO REBOOT TO ENABLE PERSITENCE!
+CURRENT CHANGES ARE NOT STORED, YOU HAVE TO REBOOT TO ENABLE PERSISTENCE!
 ===============================================================
 
 Press \"Continue\" when you are ready to start.
@@ -67,7 +67,7 @@ $ZENITY --question --text "This script automatically configures your Live-USB-St
 * writes config files to the new partition
 
 ===============================================================
-CURRENT CHANGES ARE NOT STORED, YOU HAVE TO REBOOT TO ENABLE PERSITENCE!
+CURRENT CHANGES ARE NOT STORED, YOU HAVE TO REBOOT TO ENABLE PERSISTENCE!
 ===============================================================
 
 Press \"Continue\" when you are ready to start.

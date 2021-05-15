@@ -9,7 +9,7 @@ partition=3
 filesystem=ext4
 
 . /etc/default/distro
-isodev="$(awk '{if($2=="/live/image"||$2=="/lib/live/mount/medium"){print $1;}}' /proc/mounts)"
+isodev="$(awk '{if($2=="/live/image"||$2=="/lib/live/mount/medium"||$2=="/run/live/medium"){print $1;}}' /proc/mounts)"
 case $isodev in
 /dev/sd*) ;;
 *) isodev= ;;
@@ -24,6 +24,15 @@ fi
 exit 1
 ;;
 esac
+
+if [ -d "/run/live/persistence" ]; then
+if [ -x "$KDIALOG" ]; then
+    $KDIALOG --error "Persistent mode seems to be enabled already!" --title "Persistent Live-USB-Stick"
+elif [ -x "$ZENITY" ]; then
+    $ZENITY --error --text "Persistent mode seems to be enabled already!" --title "Persistent Live-USB-Stick"
+fi
+exit 1
+fi
 
 if [ "$FLL_DISTRO_MODE" != "live" -o -z "$isodev" ]; then
 if [ -x "$KDIALOG" ]; then
@@ -98,6 +107,18 @@ if [ ! -e "$isodisk"$partition ]; then
 	mkfs.$filesystem -L "persistence" "$isodisk"$partition
 fi
 
+if [ -d /run/live/medium ]; then
+    mkdir -p /run/live/persistence
+    mount "$isodisk"$partition /run/live/persistence
+    set -- $(cat /proc/cmdline)
+    shift
+    echo "set persistence_cmdline='$@ persistence'" > /run/live/persistence/grub.cmdline
+    echo "/ union" > /run/live/persistence/persistence.conf
+    umount /run/live/persistence
+    rmdir /run/live/persistence
+
+else
+
 if [ -d /lib/live/mount ]; then
     mkdir -p /lib/live/mount/persistence
     mount "$isodisk"$partition /lib/live/mount/persistence
@@ -117,7 +138,8 @@ elif [ -d /live ]; then
     umount /live/persistence
     rmdir /live/persistence
 fi
-
+fi
 #killall -9 kdialog
 kill $(ps ax | grep kdialog | grep Live-USB | cut -c2-5)
+killall -9 kdialog_progress_helper
 exit 0

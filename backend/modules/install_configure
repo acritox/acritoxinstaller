@@ -102,7 +102,8 @@ EOF
         # remove live-repo from sources.list and delete key
         sed -i -e '/^# Live Media$/{N;\|\ndeb file:/live/image/debian |{N;/\n$/d}}' $TARGET/etc/apt/sources.list
         sed -i -e '/^# Live Media$/{N;\|\ndeb file:/run/live/medium/debian |{N;/\n$/d}}' $TARGET/etc/apt/sources.list
-        rm -f $TARGET/etc/apt/trusted.gpg.d/live-media.asc
+        sed -i -e '/^# Live Media$/{N;\|\ndeb \[signed-by=\/usr\/share\/keyrings\/live-media.gpg\] file:/run/live/medium/debian |{N;/\n$/d}}' $TARGET/etc/apt/sources.list
+        rm -f $TARGET/etc/apt/trusted.gpg.d/live-media.asc $TARGET/usr/share/keyrings/live-media.gpg
 }
 
 # Synopsis: configure_target_purge_live_only_stuff

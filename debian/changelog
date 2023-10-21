@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.45) unstable; urgency=medium
+
+  * add some cleanups for debpool
+  * prepare packages
+
+ -- Holger Paradies <retabell@gmx.de>  Sat, 21 Oct 2023 16:47:19 +0200
+
 acritoxinstaller (0.2.44) silverfire; urgency=medium
 
   * remarks for UEFI at intro screen

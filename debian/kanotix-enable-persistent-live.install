@@ -1,2 +1,2 @@
-kanotix/enable_persistent_live /usr/local/bin
+kanotix/enable_persistent_live.bash /usr/local/bin
 kanotix/9000-enable-persistent /lib/live/config

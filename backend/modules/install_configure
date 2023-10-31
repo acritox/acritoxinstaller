@@ -150,7 +150,7 @@ function configure_target_purge_live_only_stuff()
 			zram	 	&> /dev/null
 
 	# remove unused stuff
-	chroot_it apt-get autoremove --purge --yes
+	chroot_it apt-get autoremove --purge --yes	&> /dev/null
 	
 	# install copied file from debpool
 	if [ -d /run/live/medium/debian ]; then

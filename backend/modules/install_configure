@@ -55,6 +55,14 @@ EOF
 	rm -f $TARGET/tmp 2>/dev/null
 	mkdir -p $TARGET/tmp
 	chmod 1777 $TARGET/tmp
+	
+	# create file to mount efivars (needed since bullseye)
+	cat <<EOF >$TARGET/tmp/fixmount
+#!/bin/sh
+modprobe efivarfs
+mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+EOF
+	chmod ugo+x $TARGET/tmp/fixmount
 
 	# create /etc/mtab as a regular file
 	rm -f $TARGET/etc/mtab
@@ -155,6 +163,11 @@ function configure_target_purge_live_only_stuff()
 	# install copied file from debpool
 	if [ -d /run/live/medium/debian ]; then
 	DEBIAN_FRONTEND=noninteractive chroot_it dpkg -R -i /tmp
+	fi
+	
+	# execute above configured fix for efi (new since bullseye)
+	if [ -d /sys/firmware/efi/efivars ]; then
+	chroot_it /tmp/fixmount
 	fi
 
         # remove kde-config-touchpad if no touchpad is available

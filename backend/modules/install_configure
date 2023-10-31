@@ -170,5 +170,14 @@ function configure_target_purge_live_only_stuff()
         rm -f $TARGET/etc/profile.d/zz-live.sh
         rm -f $TARGET/usr/local/bin/enable_persistent_live.bash
 	rm -f "$TARGET/home/$cfg_username/Desktop/enable_persistent.desktop"
+
+	#remove appimage desktop files
+	if [ -e /run/live/medium/appimages ]; then
+	for appimages in /run/live/medium/appimages/*
+	do
+	appimage=$(basename $appimages)
+	rm -f "$TARGET/home/$cfg_username/Desktop/$appimage.desktop"
+	done
+	fi
 }
 

@@ -118,6 +118,8 @@ function configure_target_purge_live_only_stuff()
 			acritoxinstaller-icons \
 			acritoxinstaller-kanotix \
 			kanotix-enable-persistent-live \
+			calamares \
+			calamares-settings-kanotix \
 			live-boot-initramfs-tools \
 			live-boot \
 			live-initramfs \

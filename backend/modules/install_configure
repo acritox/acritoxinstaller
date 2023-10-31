@@ -81,6 +81,14 @@ EOF
 		;;
 	esac
 	
+	# if build with debpool install selected packages
+	if [ -d /run/live/medium/debian ]; then
+	cp -f /run/live/medium/debian/pool/main/g/grub2/*.deb "$TARGET/tmp/"
+#	cp -f /run/live/medium/debian/pool/main/m/mokutil/*.deb "$TARGET/tmp/"
+#	cp -f /run/live/medium/debian/pool/main/r/refind/*.deb "$TARGET/tmp/"
+	ls "$TARGET/tmp/" >/tmp/target.log
+	fi
+	
 	# install hooks
 	if [ "$(ls $TARGET/usr/share/acritoxinstaller/target-config)" ]; then
 		for hook in $TARGET/usr/share/acritoxinstaller/target-config/*
@@ -143,6 +151,11 @@ function configure_target_purge_live_only_stuff()
 
 	# remove unused stuff
 	chroot_it apt-get autoremove --purge --yes
+	
+	# install copied file from debpool
+	if [ -d /run/live/medium/debian ]; then
+	DEBIAN_FRONTEND=noninteractive chroot_it dpkg -R -i /tmp
+	fi
 
         # remove kde-config-touchpad if no touchpad is available
         [ "$(su "$FLL_LIVE_USER" -c "qdbus org.kde.synaptiks /modules/synaptiks org.kde.Synaptiks.isTouchpadAvailable")" = true ] && \

@@ -1,3 +1,12 @@
+acritoxinstaller (0.2.50) unstable; urgency=medium
+
+  * Fix uefi boot
+  * Cleanup appimages
+  * Install grub-efi from debpool
+  * Remove calamares if installed
+
+ -- Holger Paradies <retabell@gmx.de>  Tue, 31 Oct 2023 13:29:14 +0100
+
 acritoxinstaller (0.2.45) unstable; urgency=medium
 
   * add some cleanups for debpool

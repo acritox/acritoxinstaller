@@ -90,10 +90,15 @@ EOF
 	esac
 	
 	# if build with debpool install selected packages
+	# make a distinction between uefi and legacy packages
+	# TODO implement ia32
 	if [ -d /run/live/medium/debian ]; then
-	cp -f /run/live/medium/debian/pool/main/g/grub2/*.deb "$TARGET/tmp/"
-#	cp -f /run/live/medium/debian/pool/main/m/mokutil/*.deb "$TARGET/tmp/"
-#	cp -f /run/live/medium/debian/pool/main/r/refind/*.deb "$TARGET/tmp/"
+		if [ -d /sys/firmware/efi/efivars ]; then
+		cp -f /run/live/medium/debian/pool/main/g/grub2/*.deb "$TARGET/tmp/"
+		#cp -f /run/live/medium/debian/pool/main/m/mokutil/*.deb "$TARGET/tmp/"
+		#cp -f /run/live/medium/debian/pool/main/r/refind/*.deb "$TARGET/tmp/"
+		fi
+	#cp -f /run/live/medium/debian/pool/main/o/openssh/*.deb "$TARGET/tmp/"
 	ls "$TARGET/tmp/" >/tmp/target.log
 	fi
 	

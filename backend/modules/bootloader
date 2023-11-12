@@ -54,6 +54,11 @@ function list_bootloaders()
                 grub) echo "GRUB - GRand Unified Bootloader";;
                 esac
         done
+    if [ -d /sys/firmware/efi ]; then
+	if [ -x /usr/sbin/refind-install ]; then
+	    echo "rEFInd - Refind Bootmanager"
+	fi
+    fi
 }
 
 function send_bootloaders()
@@ -74,6 +79,9 @@ function install_bootmanager_to_target()
         ;;
     burg)
         install_burg
+        ;;
+    refind)
+        install_refind
         ;;
     esac
 }
@@ -160,6 +168,27 @@ function install_burg()
     chroot_it update-burg &>/dev/null
     DEBIAN_FRONTEND=noninteractive chroot_it dpkg-reconfigure burg-pc &>/dev/null
     
+    return 0
+}
+
+function install_refind()
+{
+    rm -f $TARGET/boot/vmlinuz $TARGET/boot/System.map $TARGET/boot/initrd.img
+
+    apple=0
+    dmidecode -s system-manufacturer | grep -q "Apple Inc." && apple=1
+
+    # install refind
+    if [ -d /sys/firmware/efi ]; then
+        if is_removeable "$cfg_bootloader_target" || [ "$apple" = 1 ]; then
+            refind-install --usedefault "$cfg_bootloader_target" --alldrivers &>/dev/null
+        else
+            refind-install --root $TARGET &>/dev/null
+        fi
+    fi
+    
+    write_kernel_img_conf
+
     return 0
 }
 

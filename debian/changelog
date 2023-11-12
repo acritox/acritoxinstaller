@@ -1,3 +1,9 @@
+acritoxinstaller (0.2.52) unstable; urgency=medium
+
+  * Add support for refind bootmanager
+
+ -- Holger Paradies <retabell@gmx.de>  Sun, 12 Nov 2023 12:41:28 +0100
+
 acritoxinstaller (0.2.50) unstable; urgency=medium
 
   * Fix uefi boot

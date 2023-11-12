@@ -167,7 +167,7 @@ function configure_target_purge_live_only_stuff()
 	
 	# install copied file from debpool
 	if [ -d /run/live/medium/debian ]; then
-	DEBIAN_FRONTEND=noninteractive chroot_it dpkg -R -i /tmp
+	DEBIAN_FRONTEND=noninteractive chroot_it dpkg -R -i /tmp	&> /dev/null
 	fi
 	
 	# execute above configured fix for efi (new since bullseye)

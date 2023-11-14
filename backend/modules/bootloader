@@ -199,13 +199,9 @@ cat << EOT > $TARGET/etc/kernel-img.conf
 # Kernel image management overrides
 # See kernel-img.conf(5) for details
 do_symlinks = yes
-relative_links = yes
 do_bootloader = no
-do_bootfloppy = no
 do_initrd = yes
 link_in_boot = no
-postinst_hook = update-$cfg_bootloader
-postrm_hook   = update-$cfg_bootloader
 EOT
 }
 

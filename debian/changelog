@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.53) unstable; urgency=medium
+
+  * Cleanup kernel-img.conf still TODO
+  * Remove .config/powermanagementprofilesrc
+
+ -- Holger Paradies <retabell@gmx.de>  Mon, 27 Nov 2023 18:38:51 +0100
+
 acritoxinstaller (0.2.52) unstable; urgency=medium
 
   * Add support for refind bootmanager

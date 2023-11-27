@@ -196,6 +196,9 @@ function configure_target_purge_live_only_stuff()
 	# remove kdm live shutdown hack
 	rm -f "$TARGET/home/$cfg_username/.kde/shutdown/kdm-force-shutdown-hack"
 
+	# remove with live-boot created powermanagementprofilesrc ,will be automatically recreated at plasma5 session-startup
+	rm -f "$TARGET/home/$cfg_username/.config/powermanagementprofilesrc"
+
         # remove live-only hooks
         rm -rf $TARGET/lib/live
         rm -f $TARGET/etc/profile.d/zz-live.sh

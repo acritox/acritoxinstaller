@@ -89,19 +89,6 @@ EOF
 		;;
 	esac
 	
-	# if build with debpool install selected packages
-	# make a distinction between uefi and legacy packages
-	# TODO implement ia32
-	if [ -d /run/live/medium/debian ]; then
-		if [ -d /sys/firmware/efi/efivars ]; then
-		cp -f /run/live/medium/debian/pool/main/g/grub2/*.deb "$TARGET/tmp/"
-		#cp -f /run/live/medium/debian/pool/main/m/mokutil/*.deb "$TARGET/tmp/"
-		#cp -f /run/live/medium/debian/pool/main/r/refind/*.deb "$TARGET/tmp/"
-		fi
-	#cp -f /run/live/medium/debian/pool/main/o/openssh/*.deb "$TARGET/tmp/"
-	ls "$TARGET/tmp/" >/tmp/target.log
-	fi
-	
 	# install hooks
 	if [ "$(ls $TARGET/usr/share/acritoxinstaller/target-config)" ]; then
 		for hook in $TARGET/usr/share/acritoxinstaller/target-config/*
@@ -164,11 +151,6 @@ function configure_target_purge_live_only_stuff()
 
 	# remove unused stuff
 	chroot_it apt-get autoremove --purge --yes	&> /dev/null
-	
-	# install copied file from debpool
-	if [ -d /run/live/medium/debian ]; then
-	DEBIAN_FRONTEND=noninteractive chroot_it dpkg -R -i /tmp	&> /dev/null
-	fi
 	
 	# execute above configured fix for efi (new since bullseye)
 	if [ -d /sys/firmware/efi/efivars ]; then

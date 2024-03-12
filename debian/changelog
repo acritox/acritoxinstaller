@@ -1,3 +1,9 @@
+acritoxinstaller (0.2.54) unstable; urgency=medium
+
+  * Remove debpool stuff
+
+ -- Holger Paradies <retabell@gmx.de>  Tue, 12 Mar 2024 19:24:19 +0100
+
 acritoxinstaller (0.2.53) unstable; urgency=medium
 
   * Cleanup kernel-img.conf still TODO

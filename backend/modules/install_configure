@@ -112,6 +112,10 @@ EOF
         sed -i -e '/^# Live Media$/{N;\|\ndeb file:/run/live/medium/debian |{N;/\n$/d}}' $TARGET/etc/apt/sources.list
         sed -i -e '/^# Live Media$/{N;\|\ndeb \[signed-by=\/usr\/share\/keyrings\/live-media.gpg\] file:/run/live/medium/debian |{N;/\n$/d}}' $TARGET/etc/apt/sources.list
         rm -f $TARGET/etc/apt/trusted.gpg.d/live-media.asc $TARGET/usr/share/keyrings/live-media.gpg
+        # remove acritoxinstaller-qt4 repo
+        sed -i '/[Aa]critoxinstaller-qt4/d' $TARGET/etc/apt/sources.list
+        # remove double empty lines
+        sed -i 'N;/^\n$/D;P;D;'g $TARGET/etc/apt/sources.list
 }
 
 # Synopsis: configure_target_purge_live_only_stuff

@@ -4,6 +4,7 @@
 # Written by Andreas Loibl <andreas@andreas-loibl.de>
 KDIALOG="$(which kdialog)"                      || KDIALOG="/usr/bin/kdialog"
 ZENITY="$(which zenity)"                        || ZENITY="/usr/bin/zenity"
+YAD="$(which yad)"                        || YAD="/usr/bin/yad"
 
 partition=3
 filesystem=ext4
@@ -20,6 +21,8 @@ if [ -x "$KDIALOG" ]; then
     $KDIALOG --error "Persistent mode seems to be enabled already!" --title "Persistent Live-USB-Stick"
 elif [ -x "$ZENITY" ]; then
     $ZENITY --error --text "Persistent mode seems to be enabled already!" --title "Persistent Live-USB-Stick"
+elif [ -x "$YAD" ]; then
+    $YAD --center --error --text "Persistent mode seems to be enabled already!" --title "Persistent Live-USB-Stick"
 fi
 exit 1
 ;;
@@ -30,6 +33,8 @@ if [ -x "$KDIALOG" ]; then
     $KDIALOG --error "Persistent mode seems to be enabled already!" --title "Persistent Live-USB-Stick"
 elif [ -x "$ZENITY" ]; then
     $ZENITY --error --text "Persistent mode seems to be enabled already!" --title "Persistent Live-USB-Stick"
+elif [ -x "$YAD" ]; then
+    $YAD --center --error --text "Persistent mode seems to be enabled already!" --title "Persistent Live-USB-Stick"
 fi
 exit 1
 fi
@@ -39,6 +44,8 @@ if [ -x "$KDIALOG" ]; then
     $KDIALOG --error "This script can only be used from a Live USB-Stick!" --title "Persistent Live-USB-Stick"
 elif [ -x "$ZENITY" ]; then
         $ZENITY --error --text "This script can only be used from a Live USB-Stick!" --title "Persistent Live-USB-Stick"
+elif [ -x "$YAD" ]; then
+        $YAD --center --error --text "This script can only be used from a Live USB-Stick!" --title "Persistent Live-USB-Stick"
 fi
 exit 1
 fi
@@ -73,6 +80,22 @@ CURRENT CHANGES ARE NOT STORED, YOU HAVE TO REBOOT TO ENABLE PERSISTENCE!
 Press \"Continue\" when you are ready to start.
 
 " --title "Persistent Live-USB-Stick" || exit 0
+elif [ -x "$YAD" ]; then
+
+$YAD --center --question --text "This script automatically configures your Live-USB-Stick to be persistent:
+
+* it adds a new partition into the unused space of your stick
+* formats the partition with $filesystem filesystem
+* writes config files to the new partition
+
+===============================================================
+CURRENT CHANGES ARE NOT STORED, YOU HAVE TO REBOOT TO ENABLE PERSISTENCE!
+===============================================================
+
+Press \"Continue\" when you are ready to start.
+
+" --title "Persistent Live-USB-Stick" || exit 0
+
 fi
 cp "$0" "/tmp/$(basename "$0")"
 chmod +x "/tmp/$(basename "$0")"
@@ -81,6 +104,8 @@ $KDIALOG --progressbar "Please wait..." --title "Persistent Live-USB-Stick" 0
 sudo "/tmp/$(basename "$0")" "$@"
 elif [ -x "$ZENITY" ]; then
 sudo "/tmp/$(basename "$0")" "$@" | $ZENITY --progress --pulsate --text "Please wait..." --title "Persistent Live-USB-Stick" 0
+elif [ -x "$YAD" ]; then
+sudo "/tmp/$(basename "$0")" "$@" | $YAD --center --progress --pulsate --text "Please wait..." --title "Persistent Live-USB-Stick" 0
 fi
 
 exit $?

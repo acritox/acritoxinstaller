@@ -285,7 +285,9 @@ function copy_etc_to_target()
 	cp -a /etc/localtime $TARGET/etc/localtime
 	cp -a /etc/default/keyboard $TARGET/etc/default/keyboard
 	cp -a /etc/default/locale $TARGET/etc/default/locale
-	cp -a /etc/locale.conf $TARGET/etc/locale.conf
+	if [ -e /etc/locale.conf ]; then
+	   cp -a /etc/locale.conf $TARGET/etc/locale.conf
+	fi
 	cp -a /etc/locale.gen $TARGET/etc/locale.gen
 	cp -a /etc/apt/sources.list.d/*.list $TARGET/etc/apt/sources.list.d/
 	cp -a /etc/machine-id $TARGET/etc/machine-id

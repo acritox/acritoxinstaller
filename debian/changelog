@@ -1,3 +1,10 @@
+acritoxinstaller (0.2.57) unstable; urgency=medium
+
+  * Support for sddm
+  * Small fixes for welcome message
+
+ -- Holger Paradies <retabell@gmx.de>  Sat, 03 May 2025 09:26:58 +0200
+
 acritoxinstaller (0.2.55) unstable; urgency=medium
 
   * Remove installer repo in installation.

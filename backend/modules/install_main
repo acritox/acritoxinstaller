@@ -358,9 +358,15 @@ function copy_etc_to_target()
 	    sed -i "s/User=kanotix/User=${cfg_username}/" $TARGET/etc/sddm.conf.d/kde_settings.conf
 	else
 	    sed -i 's/User=kanotix/User=/' $TARGET/etc/sddm.conf.d/kde_settings.conf
-	    sed -i 's/Session=plasmax11/Session=/' $TARGET/etc/sddm.conf.d/kde_settings.conf
 	fi
     fi
+	if [ -e /var/lib/sddm/state.conf ]; then
+	    mkdir $TARGET/var/lib/sddm
+	    chroot_it chown sddm:sddm /var/lib/sddm &>/dev/null
+	    cp -a /var/lib/sddm/state.conf $TARGET/var/lib/sddm/state.conf
+	    sed -i "s/User=kanotix/User=${cfg_username}/" $TARGET/var/lib/sddm/state.conf
+	fi
+
 
 	# Crypto
 	cp -a /etc/crypttab $TARGET/etc/crypttab

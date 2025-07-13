@@ -358,6 +358,7 @@ function copy_etc_to_target()
     if [ -e $TARGET/etc/sddm.conf.d/kde_settings.conf ]; then
 	if [ "$cfg_autologin" = "on" ]; then
 	    sed -i "s/User=kanotix/User=${cfg_username}/" $TARGET/etc/sddm.conf.d/kde_settings.conf
+	    grep -q 'kwayland' /proc/cmdline && sed -i "s/Session=plasmax11/Session=plasma/" $TARGET/etc/sddm.conf.d/kde_settings.conf
 	else
 	    sed -i 's/User=kanotix/User=/' $TARGET/etc/sddm.conf.d/kde_settings.conf
 	fi

@@ -172,6 +172,8 @@ EOF
 	 printf "%-15s %-15s %-7s %-15s %-7s %s\n" "/dev${f#/sys/block}" "/media/floppy${f#/sys/block/fd}" "auto" "rw,user,noauto" "0" "0" >> $TARGET/etc/fstab
 	done
 	
+# set restricted efi permission
+sed -i '/\/boot\/efi/s/umask=000,shortname=mixed,quiet,utf8 0       0/umask=0077      0       1/' $TARGET/etc/fstab
 }
 
 # Synopsis: update_passwd_on_target
